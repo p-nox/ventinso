@@ -1,0 +1,21 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;  
+  align-items: flex-start;
+  padding: 0;
+  box-sizing: border-box;
+  gap: 10px;   
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;     
+  min-width: 0;      
+  margin-top: 5%;
+  width: 100%;
+  gap: 5px;
+  box-sizing: border-box;
+}
+

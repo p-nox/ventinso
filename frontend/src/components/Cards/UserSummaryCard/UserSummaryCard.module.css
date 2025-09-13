@@ -1,0 +1,94 @@
+.card {
+  display: flex;
+  align-items: center;
+  padding: 15px 5px;
+  width: 100%;
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  gap: 10px;
+}
+
+.avatar {
+  width: 5.5vw;
+  height: 5.5vw;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-link-color);
+}
+
+.name:hover {
+  color: var(--text-link-hover-color);
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.rating span {
+  color: #aaa;
+}
+
+.iconStar {
+  color: #f5a623;
+  width: 16px;
+  height: 16px;
+}
+
+.link {
+  color: #1a73e8;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.followers,
+.location,
+.items {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-color);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-color);
+}
+
+.addUser {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  color: #f5a623;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.addUser:hover {
+  background: #3b3b44;
+  transform: scale(1.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}

@@ -1,0 +1,300 @@
+/* Base button */
+.button {
+  cursor: pointer;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #3b3b3b;
+  margin: 0 auto;
+  gap: 6px;
+}
+
+/* Generic icon + label */
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.label {
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+/* Generic hover effect for all buttons */
+.button:hover {
+  filter: brightness(0.9);
+}
+
+/* Variants */
+
+/* Add More */
+.addMoreBtn {
+  width: 20%;
+  padding: 12px 20px;
+  background-color: #1E90FF; 
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 2%;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.addMoreBtn:hover {
+  background-color: #187bcd; 
+  transform: scale(1.03);
+}
+
+
+/* List Item */
+.listItemBtn {
+  padding: 0 1rem;
+  width: 100%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  background-color: var(--header-color);
+  color:  rgba(224, 224, 224, 1);
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+
+.listItemBtn:hover {
+  transform: scale(1.02);
+}
+
+/* Cancel */
+.cancelFormBtn {
+  width: 4%;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding-left: 10px;
+  background-color: transparent;
+  border: 2px solid #757575;
+  color: #757575;
+
+}
+
+.cancelFormBtn .label {
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.cancelFormBtn:hover {
+  background-color: #757575;
+  padding: 10px;
+  color: white;
+  width: fit-content;
+}
+
+.cancelFormBtn:hover .label {
+  opacity: 1;
+}
+
+/* Sent / Arrived */
+.sentBtn,
+.arrivedBtn {
+  background-color: transparent;
+  border: 2px solid #0275d8;
+  color: #0275d8;
+}
+
+.sentBtn:hover,
+.arrivedBtn:hover {
+  background-color: #0275d8;
+  color: white;
+}
+
+/* Contact */
+.contactBtn {
+  background-color: transparent;
+  border: 2px solid #28a745;
+  color: #28a745;
+}
+
+.contactBtn:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Buy Now */
+.buyNowBtn {
+  background-color: transparent;
+  border: 2px solid #1E90FF; 
+  color: #1E90FF;
+}
+
+.buyNowBtn:hover {
+  background-color: #1E90FF;
+  color: white;
+}
+
+
+/* Offer */
+.offerBtn {
+  background-color: transparent;
+  border: 2px solid #ff7f50; 
+  color: #ff7f50;
+}
+
+.offerBtn:hover {
+  background-color: #ff7f50;
+  color: white;
+}
+
+/* Chat */
+.chatBtn {
+  background-color: transparent;
+  border: 2px solid #02d85b;
+  color: #02d85b;
+}
+
+.chatBtn:hover {
+  background-color: #02d85b;
+  color: white;
+}
+
+/* Submit */
+.submitBtn {
+  background-color: transparent;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+}
+
+.submitBtn:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Edit */
+.editButton {
+  background-color: transparent;
+  color: #2196F3;
+  border: 2px solid #2196F3;
+}
+
+.editButton:hover {
+  background-color: #2196F3;
+  color: white;
+}
+
+/* Delete */
+.deleteButton {
+  background-color: transparent;
+  color: red;
+  border: 2px solid red;
+}
+
+.deleteButton:hover {
+  background-color: red;
+  color: white;
+}
+
+/* Deposit */
+.depositButton {
+  background-color: transparent;
+  color: #66d17e;
+  border: 2px solid #66d17e;
+}
+
+.depositButton:hover {
+  background-color: #66d17e;
+  color: white;
+}
+
+/* Withdraw */
+.withdrawButton {
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 2px solid #ff6b6b;
+}
+
+.withdrawButton:hover {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+/* Pay */
+.payBtn {
+  background-color: transparent;
+  border: 2px solid #4caf50;
+  color: #4caf50;
+}
+
+.payBtn:hover {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Search */
+.searchButton {
+  width: 8%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--search-color);
+  border: none !important;
+  border-radius: 0;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.searchBtn svg {
+  transition: fill 0.2s ease;
+ 
+}
+
+/* Icon transitions */
+.editButton svg,
+.deleteButton svg,
+.depositButton svg,
+.withdrawButton svg {
+  transition: fill 0.2s ease, color 0.2s ease;
+  fill: currentColor;
+}
+
+.editButton:hover svg,
+.deleteButton:hover svg,
+.depositButton:hover svg,
+.withdrawButton:hover svg {
+  fill: white;
+}
+
+
+/* Cancel */
+.cancelBtn {
+  background-color: transparent;
+  border: 2px solid #d9534f;
+  color: #d9534f;
+}
+
+.cancelBtn:hover {
+  background-color: #d9534f;
+  color: white;
+}

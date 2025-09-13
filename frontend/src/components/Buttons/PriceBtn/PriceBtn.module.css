@@ -1,0 +1,51 @@
+.inputGroup {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid #aaa !important;
+  overflow: hidden;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 100%;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  cursor: pointer none;
+}
+
+.priceInput {
+  flex: 1;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 1rem;
+
+  /* Remove number arrows */
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+.withPadding {
+  padding-left: 15px !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.priceInput::-webkit-outer-spin-button,
+.priceInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.priceInput[type="number"] {
+  -moz-appearance: textfield;
+}

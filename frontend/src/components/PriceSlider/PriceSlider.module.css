@@ -1,0 +1,31 @@
+.sliderWrapper {
+  width: 95%;
+  padding: 0 10px;
+  margin: 0 auto;
+  display: flex;
+}
+
+.sliderTrack {
+  background-color: var(--header-color) !important;
+  border-color: var(--header-color) !important;
+  height: 6px !important;
+  border-radius: 3px;
+}
+
+.sliderRail {
+  background-color: #aaa !important;
+  height: 6px !important;
+  border-radius: 3px;
+}
+
+.sliderThumb {
+  background-color: var(--header-color) !important;
+  width: 20px !important;
+  height: 20px !important;
+  box-shadow: none !important;
+}
+
+.sliderThumb:hover,
+.sliderThumb.Mui-focusVisible {
+  box-shadow: 0 0 0 8px var(--header-color)20 !important; 
+}

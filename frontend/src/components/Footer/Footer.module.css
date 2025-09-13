@@ -1,0 +1,36 @@
+.footerWrapper {
+    width: 100%;
+    background-color: var(--footer-background-color);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 2rem 1rem;
+    margin-top: 5%;
+}
+
+.footerContainer {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.links {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.links a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.socialIcons a {
+    color: var(--text-color);
+}

@@ -1,0 +1,148 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+  height: fit-content;
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  color: var(--text-color);
+}
+
+.avatarWrapper {
+  width: 5.5vw;
+  aspect-ratio: 1;
+  margin: 10px auto 0;
+  border-radius: 50%;
+  position: relative;
+ 
+}
+
+.avatarContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  overflow: hidden;
+}
+
+.editButton {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  background-color: var(--text-color);
+  color: var(--background-color);
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid var(--border-color);
+  font-size: 16px;
+}
+
+.editButton input {
+  display: none;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.usernameContainer {
+  display: inline-block;
+  margin: 5px auto;
+}
+
+.username {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: left;
+  margin: 0;
+  word-break: break-word;
+}
+
+.usernameLink {
+  text-decoration: none;
+  color: var(--text-link-color);
+  transition: color 0.2s ease;
+}
+
+.usernameLink:hover {
+  color: var(--text-link-hover-color);
+}
+
+.extraInfoContainer {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  width: 100%;
+  margin: 10px auto;
+  padding: 10px 0;
+  border-top: 2px solid var(--border-color);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.infoBlock p {
+  font-size: 18px;
+  color: var(--text-label-color);
+  margin: 0;
+}
+
+.tag {
+  font-size: 20px;
+  font-weight: bold;
+  color: #f0f0f0; 
+}
+
+
+
+.defaultAvatar {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; 
+  padding-top: 0px;   
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  outline: 2px dotted #aaa;
+}
+
+
+.avatarPlaceholder {
+  width: 100%;       /* ίδιο με .avatarWrapper / .avatar */
+  height: 100%;      /* ίδιο με .avatarWrapper / .avatar */
+  border-radius: 50%; /* κυκλικό */
+  background-color: var(--background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {background-color: var(--background-color); }
+  50% {background-color: var(--background-color); }
+  100% {background-color: var(--background-color);}
+}
+
+

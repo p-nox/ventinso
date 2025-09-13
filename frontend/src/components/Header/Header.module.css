@@ -1,0 +1,24 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--header-color);
+    z-index: 1000;
+}
+
+.headerContainer {
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+    height: 50px;
+}
+
+.logoImage {
+    height: 15px;
+    width: auto;
+    margin-left: 15px;
+}

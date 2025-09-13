@@ -1,0 +1,56 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  margin-right: auto;
+  gap: 10px;
+  padding: 20px;
+  color: var(--text-color);
+  font-family: var(--font-family);
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  box-shadow: var(--box-shadow);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 5px;
+}
+
+.field.editable {
+  cursor: pointer;
+}
+
+.field.editable:hover {
+  background-color: var(--hover-color);
+}
+
+.field.editable:hover .input {
+  background-color: var(--hover-color);
+}
+
+.label {
+  width: 150px;
+  color: var(--text-label-color);
+}
+
+.value,
+.input {
+  flex: 1.5;
+  font-size: large;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  background-color: var(--background-color);
+}

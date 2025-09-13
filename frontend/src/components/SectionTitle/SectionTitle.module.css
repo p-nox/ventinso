@@ -1,0 +1,16 @@
+.labelWithLine {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 3%;
+  font-size: x-large;
+}
+
+.labelWithLine::after {
+  content: '';
+  flex-grow: 1;
+  height: 2px;
+  background-color: #555;
+  margin-left: 10px;
+}

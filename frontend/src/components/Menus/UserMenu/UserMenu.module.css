@@ -1,0 +1,25 @@
+.dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  width: max-content;
+  border-radius: var(--border-radius);
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0;
+  z-index: 1000;
+  color: var(--text-color);
+  background-color: hsl(220, 14%, 17%);
+  box-shadow: var(--box-shadow); 
+  overflow: hidden; 
+}
+
+.dropdown li {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown li:hover {
+  color: var(--text-link-hover-color);
+}

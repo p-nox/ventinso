@@ -1,0 +1,105 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 20%;
+  margin-top: 5%;
+  padding: 0 0 0.5%;
+  border-radius: var(--border-radius);
+  background-color: var(--background-color);
+  box-shadow: var(--box-shadow);
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8%;
+  border-bottom: 1px solid var(--border-color);
+
+}
+
+
+.filterSection:last-child {
+  border-bottom: none;
+}
+
+.sectionHeader {
+  font-weight: bold;
+  cursor: pointer;
+  padding-left: 10px;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s, color 0.3s;
+  color: var(--text-color);
+}
+
+.sectionHeader:hover {
+  color: var(--accent-color);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 2%;
+  gap: 10px;
+}
+
+.categoryItem {
+  font-size: larger;
+  padding-left: 10px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  height: fit-content;
+  cursor: pointer;
+  display: flex;
+  justify-content: start;
+  transition: background 0.3s, box-shadow 0.2s;
+}
+
+.categoryItem:hover {
+  background-color: var(--hover-color);
+  box-shadow: var(--box-shadow);
+  color: var(--accent-color);
+}
+
+.sectionHeader svg {
+  fill: var(--text-color);
+  transition: fill 0.3s;
+}
+
+.sectionHeader:hover svg {
+  fill: var(--accent-color);
+}
+
+.selected {
+  color: var(--selected-color);
+  font-weight: bold;
+}
+
+.priceInputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+}
+
+.priceInputs input {
+  width: 80px;
+  padding: 0;
+  padding: 0 5px 0 5px;
+}
+
+
+.priceSliderWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+}

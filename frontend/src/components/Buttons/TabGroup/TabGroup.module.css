@@ -1,0 +1,30 @@
+.tabGroup {
+  display: flex;
+  width: 80%;
+  margin-bottom: 2%;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.tabGroupButton {
+  min-width: 100px;
+  width: 20%;
+  padding: 2px 0 15px 0;
+  border: none;
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tabGroupButton:hover {
+  border-bottom: 2px solid var(--border-color);
+}
+
+.activeTab {
+  color: var(--selected-color) !important;
+  border-bottom: 2px solid var(--selected-color) !important;
+  font-weight: bold !important;
+}

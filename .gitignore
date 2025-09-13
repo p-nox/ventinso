@@ -1,0 +1,29 @@
+# Java
+*.class
+*.jar
+*.war
+target/
+
+# Maven
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node / React
+node_modules/
+build/
+
+# Docker / DB
+backend/docker/mysql/data/
+*.sock
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Uploads (user avatars, item images)
+backend/uploads/
+
+# Environment files
+backend/.env

@@ -1,0 +1,13 @@
+#root {
+  background-color: var(--main-background-color);
+  min-height: 100vh;
+}
+
+.contentWrapper {
+  padding-top: 50px; 
+  overflow: hidden;
+}
+
+svg {
+  cursor: pointer;
+}

@@ -1,0 +1,33 @@
+.wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.content {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.sideWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

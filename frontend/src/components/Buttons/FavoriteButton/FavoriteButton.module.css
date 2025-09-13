@@ -1,0 +1,23 @@
+.wrapper {
+    all: unset;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.wrapperItemCard {
+    composes: wrapper;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+}
+
+.wrapperItemCardBig {
+    composes: wrapper;
+    position: relative; 
+}

@@ -1,0 +1,106 @@
+.wrapper {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 0 auto;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
+.sideContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
+  box-shadow: var(--box-shadow);
+  background-color: var(--background-color);
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 40px; 
+  width: 68%;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.label {
+  font-weight: bold;
+  min-width: 120px;
+  color: var(--text-label-color);
+}
+
+.value {
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.container {
+  width: 100%;
+  padding: 20px 10px;
+  border-radius: 2px;
+  border-top: 1px solid var(--border-color);
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.icon {
+  margin-right: 8px;
+  color: var(--icon-color);
+}
+
+.text {
+  font-size: 18px;
+  color: var(--text-label-color);
+}
+
+
+
+
+
+
+
+
+
+
+.openOffersBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(90deg, #ff7e5f, #feb47b);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+
+
+.categoryLink {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.categoryLink:hover {
+  color: #0056b3;
+}
