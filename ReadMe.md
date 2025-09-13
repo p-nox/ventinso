@@ -25,6 +25,7 @@ Built with **Java Spring Boot (backend)** microservices architecture and **React
 - [Setup & Installation](#setup--installation)
 - [Future Enhancements](#future-enhancements)
 - [Why This Project Matters](#why-this-project-matters)
+- [Screenshots](#screenshots)
 
 ---
 
@@ -272,3 +273,30 @@ This project demonstrates:
 It is a **portfolio-grade project**, showcasing backend engineering, frontend development, and DevOps skills in one cohesive ecosystem.
 
 ---
+
+## Screenshots
+
+### Home Page & Filters
+| Home Page | Filters |
+| --------- | ------- |
+| ![Home](images/home.png) | ![Home Filters](images/homeFilters.png) |
+
+### Item Page & Owner
+| Item Page | Item Owner |
+| --------- | ---------- |
+| ![Item](images/item.png) | ![Item Owner](images/itemOwner.png) |
+
+### Account & Wallet
+| Account Page | Wallet |
+| ------------ | ------ |
+| ![Account](images/account.png) | ![Wallet](images/wallet.png) |
+
+### Orders & Order History
+| Orders Page | Order History |
+| ----------- | ------------- |
+| ![Order](images/order.png) | ![Order History](images/orderHistory.png) |
+
+### Profile
+| Profile Page |  |
+| ------------ | - |
+| ![Profile](images/profile.png) |  |
