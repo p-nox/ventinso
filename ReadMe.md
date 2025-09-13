@@ -279,7 +279,7 @@ It is a **portfolio-grade project**, showcasing backend engineering, frontend de
 ### Home Page & Filters
 | Home Page | Filters |
 | --------- | ------- |
-| ![Home](images/home.png) | ![Home Filters](images/homeFilters.png) |
+| ![Home](images/home.png) | ![Home Filters](images/homefilters.png) |
 
 ### Item Page & Owner
 | Item Page | Item Owner |
@@ -297,6 +297,7 @@ It is a **portfolio-grade project**, showcasing backend engineering, frontend de
 | ![Order](images/order.png) | ![Order History](images/orderHistory.png) |
 
 ### Profile
-| Profile Page |  |
-| ------------ | - |
-| ![Profile](images/profile.png) |  |
+| Profile Page |
+| ------------ |
+| ![Profile](images/profile.png) |
+
