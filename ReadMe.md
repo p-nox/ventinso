@@ -277,7 +277,7 @@ It is a **portfolio-grade project**, showcasing backend engineering, frontend de
 ## Screenshots
 
 ### Home Page & Filters
-| Home Page | Filters |
+| Home Page |Home Page Filters |
 | --------- | ------- |
 | ![Home](images/home.png) | ![Home Filters](images/homefilters.png) |
 
