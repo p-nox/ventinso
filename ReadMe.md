@@ -212,13 +212,19 @@ Built with **Java Spring Boot (backend)** microservices architecture and **React
 ### Prerequisites
 - Java 17, Maven 3.9+  
 - Node.js 20+  
-- Docker & Docker Compose  
+- Docker & Docker Compose
+
+### Build Docker Images with Jib
+```bash
+cd backend
+mvn clean compile jib:dockerBuild 
+```
 
 ### Run Core Infrastructure
 ```bash
 cd backend
 docker-compose -f docker-compose.core.yml up -d
-````
+```
 
 ### Run Development Tools (optional)
 
