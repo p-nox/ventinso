@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useContext } from 'react';
-import { NotificationContext } from '@context/NotificationContext';
+import { NotificationSseContext } from '@context/NotificationSseContext';
 
 export function useNavbar(setShowSearch) {
   const [username, setUsername] = useState(null);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
 
-  const { notifications, setNotifications } = useContext(NotificationContext);
+  const { notifications, setNotifications } = useContext(NotificationSseContext);
 
   const accountMenuRef = useRef(null);
   const notificationMenuRef = useRef(null);
@@ -30,10 +30,12 @@ export function useNavbar(setShowSearch) {
   }, []);
 
   const toggleSearch = () => setShowSearch(prev => !prev);
+  
   const toggleAccountMenu = () => {
     setIsAccountMenuOpen(prev => !prev);
     setIsNotificationMenuOpen(false);
   };
+
   const toggleNotificationMenu = () => {
     setIsNotificationMenuOpen(prev => !prev);
     setIsAccountMenuOpen(false);

@@ -1,11 +1,9 @@
+import styles from "./HomePage.module.css";
 import React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import FiltersPanel from "@components/FiltersPanel/FiltersPanel";
-import ActiveFilters from "@components/ActiveFilters/ActiveFilters";
-import ItemGrid from "@components/ItemGrid/ItemGrid";
+import { FiltersPanel, ActiveFilters } from './components';
+import { ItemGrid } from "@components/ui";
 import Button from "@components/Buttons/Button/Button";
-import styles from "./HomePage.module.css";
-
 import useUrlFilters from "@hooks/useUrlFilters";
 import useItems from "@hooks/useItems";
 

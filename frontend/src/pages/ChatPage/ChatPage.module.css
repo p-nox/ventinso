@@ -1,0 +1,70 @@
+.modalWrapper {
+  position: fixed;
+  bottom: 0;
+  right: 40px;
+  width: 50%;
+  height: 600px;
+  display: flex;
+  flex-direction: row;
+  background-color: var(--background-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  font-family: sans-serif;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.chatWindow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topResizeHandle {
+  height: 6px;
+  cursor: ns-resize;
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+}
+
+.minimizedBar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 140px;
+  height: 40px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 1001;
+  padding: 0 12px;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.minimizedBarButton {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+
+.minimizedBar button {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.minimizedBar:hover button {
+  opacity: 1;
+}
+
+

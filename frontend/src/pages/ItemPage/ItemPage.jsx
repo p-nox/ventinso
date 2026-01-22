@@ -3,21 +3,18 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getItem } from '@services/InventoryService';
 import { API_BASE_URL } from '@config/Config';
 import { useAuth } from '@context/AuthContext';
-import { getRelativeTime, formatText } from '@utils/utils';
-import ItemCardBig from '@components/Cards/ItemCardBig/ItemCardBig';
-import ItemPageButtons from '@components/Buttons/ItemPageButtons/ItemPageButtons';
-import ItemControlPanel from '@components/ItemControlPanel/ItemControlPanel';
+import { getRelativeTime, formatText } from '@utils/Utils';
+import { ItemPageButtons, ItemControlPanel, ItemCardBig, UserSummaryCard } from './components';
 import styles from './ItemPage.module.css';
-import ItemsCarousel from '@components/ItemCarousel/ItemCarousel';
+import { ItemCarousel } from '@components/ui';
 import { Eye, Users } from "lucide-react";
 import { Paths } from "@config/Config";
-import UserSummaryCard from '@components/Cards/UserSummaryCard/UserSummaryCard';
-import Tag from "@components/Tag/Tag";
+import { Tag } from "@components/ui";
 
 export default function ItemPage() {
     const { id } = useParams();
     const location = useLocation();
-    const { username, userId } = useAuth();
+    const { username } = useAuth();
     const navigate = useNavigate();
 
     const [item, setItem] = useState(null);
@@ -49,11 +46,13 @@ export default function ItemPage() {
     const isOwner = item.username === username;
     const otherItems = item.userItems.filter(i => Number(i.itemId) !== Number(item.id));
 
+    
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.mainColumn}>
                 <ItemCardBig key={item.id} item={item} mainImage={mainImage} setMainImage={setMainImage} />
-                <ItemsCarousel
+                <ItemCarousel
                     items={otherItems}
                     username={item.username}
                 />

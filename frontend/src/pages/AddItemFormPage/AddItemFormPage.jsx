@@ -1,10 +1,12 @@
+import styles from './AddItemFormPage.module.css';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styles from './AddItemFormPage.module.css';
-import DropdownArrow from '@assets/Icons/DropdownArrow';
-import MultiImageUpload from '@components/MultiImageUpload/MultiImageUpload';
+import DropdownArrow from '@assets/icons/DropdownArrow';
+
+import MultiImageUpload from './components/MultiImageUpload/MultiImageUpload';
+
 import PriceBtn from '@components/Buttons/PriceBtn/PriceBtn';
-import CheckBox from '@components/CheckBox/CheckBox';
+import { CheckBox } from '@components/ui';
 import { useAuth } from '@context/AuthContext';
 import { useAddItemForm } from '@hooks/useAddItemForm';
 

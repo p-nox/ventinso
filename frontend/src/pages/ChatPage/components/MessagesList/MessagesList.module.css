@@ -1,0 +1,231 @@
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  background-color: var(--main-background-color);
+  color: var(--text-color);
+}
+
+.messageRow {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.ownRow {
+  align-items: flex-end;
+}
+
+.otherRow {
+  align-items: flex-start;
+}
+
+.messageContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.messageBubbleWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ownRow .messageBubbleWrapper {
+  align-items: flex-end;
+}
+
+.messageBubble {
+  padding: 10px 12px;
+  border-radius: var(--border-radius);
+  max-width: 100%;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ownRow .messageBubble {
+  background-color: #606060;
+}
+
+.otherRow .messageBubble {
+  background-color: #303030;
+}
+
+.messageTimestamp {
+  font-size: 0.7rem;
+  color: var(--text-label-color);
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.ownRow .messageTimestamp {
+  align-self: flex-end;
+}
+
+.otherRow .messageTimestamp {
+  align-self: flex-start;
+}
+
+.mediaGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.gridItem {
+  position: relative;
+  cursor: pointer;
+}
+
+.gridItem img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+
+.gridItem:hover img {
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.offerContainer {
+  border-radius: 10px;
+  padding: 10px;
+  margin: 6px 0;
+  max-width: 300px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.offerOwn {
+  background-color: #606060;
+  align-self: flex-end;
+  color: var(--text-color);
+}
+
+.offerOther {
+  background-color: #303030;
+  align-self: flex-start;
+  color: var(--text-color);
+}
+
+.offerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.offerLabel {
+  font-weight: bold;
+  color: var(--accent-color-dark);
+}
+
+.offerBadgeRejected {
+  font-weight: bold;
+  color: #F95984;
+}
+
+.offerBadgeAccepted {
+  font-weight: bold;
+  color: #45A774;
+}
+
+.offerText {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.offerButtons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.accept, .reject, .newOffer, .cancel {
+  background-color: transparent;
+  color: inherit;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.accept {
+  color: #4caf50;
+  border-color: #4caf50;
+}
+
+.accept:hover {
+  background-color: #4caf50;
+  color: white;
+}
+
+.reject, .cancel {
+  color: #f44336;
+  border-color: #f44336;
+}
+
+.reject:hover,
+.cancel:hover {
+  background-color: #f44336;
+  color: white;
+}
+
+.newOffer {
+  color:#E67248;
+  border-color: #E67248;
+}
+
+.newOffer:hover {
+  background-color: #E67248;
+  color: white;
+}
+
+.username {
+  font-weight: 600;
+}
+
+.usernameLink {
+  font-weight: 600;
+  color: var(--text-link-color);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.orderLink {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+}

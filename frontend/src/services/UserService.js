@@ -1,7 +1,6 @@
 import createApiClient from "./ApiHandler";
 import { API_URLS, getAuthHeaders } from "../config/Config";
 
-
 const { handle: handleUsers } = createApiClient(API_URLS.USER);
 const { handle: handleAggregated } = createApiClient(API_URLS.AGGREGATED);
 const { handle: handleRatings } = createApiClient(API_URLS.RATING);

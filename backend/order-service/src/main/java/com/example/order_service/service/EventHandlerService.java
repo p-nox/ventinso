@@ -55,10 +55,14 @@ public class EventHandlerService {
         orderService.markOrderRatingSubmitted(event.getOrderId());
     }
 
+
     private void updateAndSendEvent(OrderEvent event, OrderStatus status, OrderAction action, String topic) {
         orderService.updateOrderStatus(event.getId(), status);
         event.setAction(action.name());
         kafkaTemplate.send(topic, event);
     }
+
+
+
 
 }

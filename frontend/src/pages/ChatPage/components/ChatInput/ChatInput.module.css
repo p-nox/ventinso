@@ -1,0 +1,96 @@
+.inputArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 8px;
+  background-color: #171A1B;
+}
+
+.sendButton {
+  margin-left: 6px;
+  padding: 6px 12px;
+  border-radius: var(--border-radius);
+  border: none;
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sendButton:disabled {
+  background-color: rgba(147, 197, 253, 0.6);
+  cursor: not-allowed;
+}
+
+.previewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.previewItem {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.previewMedia {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.removeButton {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--status-failed);
+  color: var(--status-text);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  padding: 0;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.hiddenFileInput {
+  display: none;
+}
+.inputBox {
+  width: 100%;
+  height: 40px;      
+  min-height: 40px;
+  max-height: 200px;
+  resize: none;
+  padding: 6px 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  outline: none;
+  background-color: var(--main-background-color);
+  color: var(--text-color);
+}

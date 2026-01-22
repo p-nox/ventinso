@@ -1,11 +1,10 @@
-import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import styles from "./ItemCard.module.css";
-import Tag from "@components/Tag/Tag";
+import { Tag } from "@components/ui";
 import FavoriteButton from "@components/Buttons/FavoriteButton/FavoriteButton";
 import { useAuth } from "@context/AuthContext";
 import { API_BASE_URL, Paths } from "@config/Config";
-import { getRatingPercentageAndLabel } from '@utils/utils';
+import { getRatingPercentageAndLabel } from '@utils/Utils';
 
 export default function ItemCard({ item, showUserInfo }) {
   if (!item) return null;

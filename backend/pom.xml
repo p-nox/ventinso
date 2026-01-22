@@ -12,6 +12,7 @@
     <modules>
         <module>api-gateway</module>
         <module>auth-service</module>
+        <module>chat-service</module>
         <module>discovery-service</module>
         <module>inventory-preview-service</module>
         <module>inventory-service</module>

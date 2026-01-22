@@ -22,6 +22,8 @@ public class OrderEvent {
     private String itemTitle;
     private String action;
 
+    private String orderType;
+
     private LocalDateTime paidAt;
     private LocalDateTime sentAt;
     private LocalDateTime arrivedAt;

@@ -2,7 +2,6 @@ package com.example.user_service.controller;
 
 import com.example.user_service.dto.*;
 import com.example.user_service.service.UserService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,8 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Users", description = "User profile, watchlist and avatar management")
 public class UserController {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+
     private final UserService userService;
 
     @GetMapping("/{userId}/summary")

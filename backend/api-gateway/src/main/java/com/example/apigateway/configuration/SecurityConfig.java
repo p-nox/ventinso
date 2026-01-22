@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 ApiConfig.RATING_SERVICE_URL + "/**",
                                 ApiConfig.STRIPE_WEBHOOK_SERVICE_URL + "/**",
                                 ApiConfig.NOTIFICATION_SERVICE_URL + "/**",
+                                ApiConfig.CHAT_SERVICE_URL + "/**",
                                 "/v3/api-docs/**",
                                 "/api/webjars/**",
                                 "/api-docs/**",
@@ -42,6 +43,7 @@ public class SecurityConfig {
                                 "/api/aggregated/**"
                         ).permitAll()
                         .pathMatchers("/notifications/**").permitAll()
+                        .pathMatchers("/chats/**").permitAll()
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .pathMatchers(
                                 ApiConfig.ORDER_SERVICE_URL + "/**",

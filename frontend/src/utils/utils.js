@@ -66,3 +66,14 @@ export function formatDate(dateString) {
     year: "2-digit",
   });
 }
+
+
+export function formatTimestamp(timestamp) {
+    if(!timestamp) return "";
+    const date=new Date(timestamp);
+    const day=date.getDate().toString().padStart(2,"0");
+    const month=date.toLocaleString("en-GB",{month:"short"});
+    const hour=date.getHours().toString().padStart(2,"0");
+    const minute=date.getMinutes().toString().padStart(2,"0");
+    return `${day} ${month} ${hour}:${minute}`;
+}

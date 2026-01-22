@@ -37,6 +37,8 @@ public class Router {
                         .uri("lb://" + ApiConfig.PAYMENT_SERVICE))
                 .route("stripe_webhook_http", r -> r.path(ApiConfig.STRIPE_WEBHOOK_SERVICE_URL + "/**")
                         .uri("lb://" + ApiConfig.PAYMENT_SERVICE))
+                .route("chat_http", r -> r.path(ApiConfig.CHAT_SERVICE_URL + "/**")
+                        .uri("lb://" + ApiConfig.CHAT_SERVICE))
 
 
                 // HTTP polling route for SockJS
@@ -50,6 +52,18 @@ public class Router {
                         .and()
                         .header("Upgrade", "websocket")
                         .uri("lb://" + ApiConfig.NOTIFICATION_SERVICE.toUpperCase())
+                )
+                // HTTP polling route for SockJS
+                .route("chat_http", r -> r
+                        .path("/chats/info/**")
+                        .uri("lb://" + ApiConfig.CHAT_SERVICE.toUpperCase())
+                )
+                // WebSocket upgrade route
+                .route("chat_ws", r -> r
+                        .path("/chats/**")
+                        .and()
+                        .header("Upgrade", "websocket")
+                        .uri("lb://" + ApiConfig.CHAT_SERVICE.toUpperCase())
                 )
                 .build();
     }
