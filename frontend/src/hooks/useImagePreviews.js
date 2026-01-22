@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@config/Config.js";
 import { deleteImage } from "@services/InventoryService.js";
+import { useParams } from 'react-router-dom';
 
 export default function useImagePreviews(files, setFiles, existingImages, setExistingImages, setThumbnail) {
 
   const [previews, setPreviews] = useState([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(-1);
+  const { itemId  } = useParams();
 
   useEffect(() => {
     const existingUrls = existingImages
@@ -44,9 +46,10 @@ export default function useImagePreviews(files, setFiles, existingImages, setExi
     if (index < existingCount) {
       const rawValue = existingImages[index];
       const filename = typeof rawValue === "string" ? rawValue.split("/").pop() : null;
+      console.log(itemId );
 
       if (filename) {
-        try { await deleteImage(filename); } 
+        try { await deleteImage(itemId, filename); } 
         catch (err) { console.error("[handleDelete] Failed to delete image:", err); }
       }
 

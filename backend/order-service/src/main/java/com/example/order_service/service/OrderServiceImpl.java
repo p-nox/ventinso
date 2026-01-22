@@ -48,6 +48,7 @@ public class OrderServiceImpl implements OrderService {
                     .itemId(savedOrder.getItemId())
                     .itemTitle(savedOrder.getItemTitle())
                     .price(savedOrder.getPrice())
+                    .orderType(request.getOrderType().name())
                     .build();
             kafkaTemplate.send("order.created", orderEvent);
 

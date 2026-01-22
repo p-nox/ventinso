@@ -1,6 +1,6 @@
 import styles from "./MyOrdersPage.module.css";
 import SideMenu from "@components/Menus/SideMenu/SideMenu";
-import OrdersHistory from "@components/OrdersHistory/OrdersHistory";
+import { OrdersHistory } from "./components";
 import { useAuth } from "@context/AuthContext";
 import { Routes, Route } from "react-router-dom";
 

@@ -1,5 +1,6 @@
 package com.example.order_service.event;
 
+import com.example.order_service.enums.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class OrderEvent {
     private String itemTitle;
     private String checkoutUrl;
     private String action;
+
+    private String orderType;
 
     private LocalDateTime paidAt;
     private LocalDateTime sentAt;

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./ScrollButton.module.css";
-import ArrowIcon from "@assets/Icons/ArrowIcon";
+import { ArrowIcon } from "@assets/icons";
 
 export default function ScrollButton({ direction, onClick, show }) {
   if (!show) return null;

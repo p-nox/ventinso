@@ -1,10 +1,9 @@
+import styles from '@pages/MyProfilePage/MyProfilePage.module.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import styles from '@pages/MyProfilePage/MyProfilePage.module.css';
-import ReviewsSection from '@components/ReviewsSection/ReviewsSection';
+import { ReviewsSection, UserProfileCard } from './components';
 import { getUser } from '@services/UserService';
-import ProfileSidebar from '@components/ProfileSidebar/ProfileSidebar';
-import ItemGrid from '../../components/ItemGrid/ItemGrid';
+import ItemGrid from '@components/ui/ItemGrid/ItemGrid';
 import { useAuth } from "@context/AuthContext";
 
 export default function UserProfile() {
@@ -27,7 +26,7 @@ export default function UserProfile() {
     return (
         <div className={styles.wrapper}>
             <div className={styles.flexContainer}>
-                <ProfileSidebar user={user} />
+                <UserProfileCard user={user} />
                 <div className={styles.contentWrapper}>
                     <ItemGrid
                         items={user.items}

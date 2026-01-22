@@ -85,6 +85,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public void deleteItem(Long itemId) {
         inventoryRepository.deleteByIdDirectly(itemId);
+        imageStorageService.deleteImagesForItem(itemId);
         kafkaTemplate.send("inventory.item.deleted",itemId);
     }
 
@@ -178,21 +179,40 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     @Override
     public boolean isItemValid(Item item, OrderEvent event) {
+        log.info("Validating item: id={}, title={}, status={}, userId={}, eventId={}, eventSellerId={}, eventPrice={}, orderType={}",
+                item.getId(), item.getTitle(), item.getStatus(), item.getUserId(),
+                event.getId(), event.getSellerId(), event.getPrice(), event.getOrderType());
 
         boolean statusMatches = ItemStatus.ACTIVE.equals(item.getStatus());
         boolean sellerMatches = item.getUserId().equals(event.getSellerId());
-        boolean priceMatches = item.getPrice().compareTo(event.getPrice()) == 0;
+
+        // Έλεγχος τιμής μόνο αν δεν είναι OFFER
+        boolean priceMatches = true;
+        if (!"OFFER".equalsIgnoreCase(event.getOrderType())) {
+            priceMatches = item.getPrice().compareTo(event.getPrice()) == 0;
+        }
+
+        log.info("Validation details for itemId {}: statusMatches={}, sellerMatches={}, priceMatches={}",
+                item.getId(), statusMatches, sellerMatches, priceMatches);
+
         boolean isValid = statusMatches && sellerMatches && priceMatches;
 
         if (isValid) {
+            log.info("Item {} is valid. Reserving and updating status to RESERVED.", item.getId());
             item.setStatus(ItemStatus.RESERVED);
             Item savedItem = inventoryRepository.saveAndFlush(item);
 
             ItemCreateUpdateEvent itemUpdateEvent = mapper.toEvent(savedItem);
+            log.info("Sending Kafka event 'inventory.item.updated' for itemId={}", savedItem.getId());
             kafkaTemplate.send("inventory.item.updated", itemUpdateEvent);
+        } else {
+            log.warn("Item {} is not valid for OrderEvent {}.", item.getId(), event.getId());
         }
+
         return isValid;
     }
+
+
 
     @Override
     public Item findItemById(Long itemId){

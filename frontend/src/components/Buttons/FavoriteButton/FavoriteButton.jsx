@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { toggleFavorite } from '@services/UserService';
-import FavIcon from '@assets/Icons/FavIcon'; 
+import { FavIcon } from '@assets/icons'; 
 import { useAuth } from '@context/AuthContext';
 import styles from './FavoriteButton.module.css';
 

@@ -2,6 +2,7 @@ package com.example.notification_service.controller;
 
 import com.example.notification_service.dto.NotificationResponse;
 import com.example.notification_service.service.NotificationService;
+import com.example.notification_service.service.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -19,6 +21,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final SseNotificationService sseNotificationService;
+
+    @GetMapping("/stream/{userId}")
+    public SseEmitter streamNotifications(@PathVariable long userId) {
+        return sseNotificationService.register(userId);
+    }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get user notifications", description = "Retrieve all notifications for a specific user")

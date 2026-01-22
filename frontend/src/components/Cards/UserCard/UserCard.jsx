@@ -36,12 +36,6 @@ export default function UserCard({
 
 
 
-
-
-
-
-
-
 function Username({ username, totalSales, userId, disableLink }) {
   const content = (
     <p className={styles.username}>
@@ -63,13 +57,16 @@ function Username({ username, totalSales, userId, disableLink }) {
 function Avatar({ avatarUrl, editable, onAvatarChange }) {
   const inputRef = useRef(null);
   const [cacheBuster, setCacheBuster] = useState(Date.now());
-  const [imgSrc, setImgSrc] = useState(null); 
+  const [imgSrc, setImgSrc] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (avatarUrl) {
 
-      const newSrc = `${API_BASE_URL}${avatarUrl}?t=${cacheBuster}`;
+      const isAbsolute = avatarUrl.startsWith("http");
+      const newSrc = isAbsolute
+        ? `${avatarUrl}?t=${cacheBuster}`
+        : `${API_BASE_URL}${avatarUrl}?t=${cacheBuster}`;
       setLoading(true);
       const img = new Image();
       img.src = newSrc;

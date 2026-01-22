@@ -1,8 +1,8 @@
 import styles from "./AccountPage.module.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import SideMenu from "@components/Menus/SideMenu/SideMenu";
-import AccountInfo from "@components/AccountInfo/AccountInfo";
-import WalletPage from "@pages/WalletPage/WalletPage";
+import AccountInfo from "./components/AccountInfo/AccountInfo";
+import MyWalletPage from "@pages/MyWalletPage/MyWalletPage";
 import { useAuth } from "@context/AuthContext";
 
 export default function AccountPage() {
@@ -19,7 +19,7 @@ export default function AccountPage() {
       <Routes>
         <Route path="/" element={<Navigate to="info" replace />} />
         <Route path="info" element={<AccountInfo />} />
-        <Route path="wallet" element={<WalletPage />} />
+        <Route path="wallet" element={<MyWalletPage />} />
       </Routes>
     </div>
   );

@@ -245,7 +245,6 @@ services:
     container_name: mysql
     networks:
       - ventinso-network
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:

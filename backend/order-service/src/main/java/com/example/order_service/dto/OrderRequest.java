@@ -1,5 +1,6 @@
 package com.example.order_service.dto;
 
+import com.example.order_service.enums.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class OrderRequest {
     private String itemCondition;
     private String thumbnailUrl;
     private BigDecimal price;
+    private OrderType orderType;
 }

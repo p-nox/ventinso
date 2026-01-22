@@ -1,12 +1,10 @@
+import styles from './OrderPage.module.css';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import styles from './OrderPage.module.css';
+import { OrderDetails, OrderPageButtons, EvaluationCard } from './components';
 import { getOrder, confirmOrderProgress } from '@services/OrderService.js';
 import { createRating, getRating } from '@services/UserService.js';
 import { useAuth } from '@context/AuthContext.jsx';
-import EvaluationCard from '@components/Cards/EvaluationCard/EvaluationCard';
-import OrderPageButtons from '@components/Buttons/OrderPageButtons/OrderPageButtons';
-import OrderDetails from '@components/OrderDetails/OrderDetails';
 
 export default function OrderPage() {
     const { id } = useParams();

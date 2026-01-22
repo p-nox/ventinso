@@ -29,9 +29,12 @@ public class ImageController {
     private String uploadDir;
     private final ImageStorageService imageStorageService;
 
-    @GetMapping("/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
-        Path path = Paths.get(uploadDir, filename);
+    @GetMapping("/{itemId}/{filename}")
+    public ResponseEntity<Resource> getImage(
+            @PathVariable Long itemId,
+            @PathVariable String filename) throws IOException {
+
+        Path path = Paths.get(uploadDir, String.valueOf(itemId), filename);
         if (!Files.exists(path)) {
             return ResponseEntity.notFound().build();
         }
@@ -52,11 +55,12 @@ public class ImageController {
                 .body(resource);
     }
 
-    @DeleteMapping("/{filename}")
+    @DeleteMapping("/{itemId}/{filename}")
     @Operation(summary = "Delete image", description = "Delete an image by its filename")
     public ResponseEntity<Void> deleteImage(
-            @Parameter(description = "Filename of the image to delete") @PathVariable String filename) {
-        imageStorageService.deleteImage(filename);
+            @PathVariable Long itemId,
+            @PathVariable String filename) {
+        imageStorageService.deleteImage(itemId, filename);
         return ResponseEntity.noContent().build();
     }
 }

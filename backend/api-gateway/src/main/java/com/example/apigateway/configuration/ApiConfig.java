@@ -12,6 +12,7 @@ public final class ApiConfig {
     public static final String NOTIFICATION_SERVICE = "NOTIFICATION-SERVICE";
     public static final String PREVIEW_SERVICE = "PREVIEW-INVENTORY-SERVICE";
     public static final String PAYMENT_SERVICE = "PAYMENT-SERVICE";
+    public static final String CHAT_SERVICE = "CHAT-SERVICE";
 
 
     // --- API paths ---
@@ -26,4 +27,5 @@ public final class ApiConfig {
     public static final String WALLET_SERVICE_URL = "/api/wallet";
     public static final String PAYMENT_SERVICE_URL = "/api/payments";
     public static final String STRIPE_WEBHOOK_SERVICE_URL = "/stripe";
+    public static final String CHAT_SERVICE_URL = "/api/chat";
 }

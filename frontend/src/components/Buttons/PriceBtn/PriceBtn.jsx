@@ -1,5 +1,5 @@
 import React from 'react';
-import EuroIcon from '@assets/Icons/EuroIcon';
+import { EuroIcon } from '@assets/icons';
 import styles from './PriceBtn.module.css';
 
 const VARIANTS = {

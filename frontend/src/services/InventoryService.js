@@ -23,10 +23,13 @@ export const deleteItem = (itemId) =>
 export const getCategories = () =>
   handle(api => api.get(`/categories`));
 
-export const deleteImage = (filename) => {
+export const deleteImage = (itemId, filename) => {
   const { handle } = createApiClient(API_URLS.IMAGE);
-  return handle(api => api.delete(`/${filename}`));
+  const url = `/${itemId}/${filename}`;
+  console.log("DELETE request URL:", `${API_URLS.IMAGE}${url}`);
+  return handle(api => api.delete(url));
 };
+
 
 export const createItem = (itemObj, files = []) => {
   const formData = buildFormData(itemObj, files);

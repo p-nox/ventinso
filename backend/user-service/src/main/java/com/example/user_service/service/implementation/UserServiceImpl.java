@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
             if (existingUser.getAvatarUrl() != null && !existingUser.getAvatarUrl().equals("default.png")) {
                 deleteImage(existingUser.getAvatarUrl());
             }
-            String avatarUrl = saveUserAvatar(image);
+            String avatarUrl = saveUserAvatar(userId, image);
             existingUser.setAvatarUrl(avatarUrl);
         }
 
@@ -191,10 +191,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public String saveUserAvatar(MultipartFile image) {
+    public String saveUserAvatar(Long userId, MultipartFile image) {
         String originalFilename = image.getOriginalFilename();
         String extension = FilenameUtils.getExtension(originalFilename);
-        String filename = UUID.randomUUID() + "." + extension;
+        String filename = userId + "." + extension;
 
         try (InputStream is = image.getInputStream()) {
             Path storageLocation = getStorageLocation();

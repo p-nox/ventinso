@@ -15,7 +15,8 @@ public interface ItemImageRepository extends JpaRepository<ItemImage, Long> {
 
     List<ItemImage> findAllByItemId(Long itemId);
 
-    Optional<ItemImage> findByFilename(String filename);
+    Optional<ItemImage> findByItemIdAndFilename(Long itemId, String filename);
+
 
     Optional<ItemImage> findByItemIdAndThumbnailTrue(Long itemId);
 

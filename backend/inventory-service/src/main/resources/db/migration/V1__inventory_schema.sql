@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS item_images (
     path VARCHAR(255) NOT NULL,
     thumbnail BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_item_images_item FOREIGN KEY (item_id) REFERENCES items(id)
+    ON DELETE CASCADE
 );
 
 -- Table: item_reservations
@@ -41,4 +42,5 @@ CREATE TABLE IF NOT EXISTS item_reservations (
     order_id BIGINT NOT NULL,
     UNIQUE(item_id, order_id),
     CONSTRAINT fk_item_reservations_item FOREIGN KEY (item_id) REFERENCES items(id)
+    ON DELETE CASCADE
 );

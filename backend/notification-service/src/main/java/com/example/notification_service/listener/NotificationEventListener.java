@@ -8,6 +8,7 @@ import com.example.notification_service.enums.EventAction;
 import com.example.notification_service.service.NotificationFactory;
 import com.example.notification_service.service.NotificationPreferencesService;
 import com.example.notification_service.service.NotificationService;
+import com.example.notification_service.service.SseNotificationService;
 import com.example.order_service.event.OrderEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class NotificationEventListener {
     private final NotificationFactory notificationFactory;
     private final NotificationService notificationService;
     private final NotificationPreferencesService notificationPreferencesService;
+    private final SseNotificationService sseNotificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
 
@@ -39,7 +41,9 @@ public class NotificationEventListener {
 
         Notification authNotification = notificationFactory.buildAuthNotification(event, EventAction.EMAIL_UPDATE);
         NotificationResponse response = notificationService.saveNotification(authNotification);
-        messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+       // messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+
+        sseNotificationService.sendNotification(response.getUserId(), response);
     }
 
     @KafkaListener(topics = "auth.password.updated.notification")
@@ -53,7 +57,9 @@ public class NotificationEventListener {
 
         Notification authNotification = notificationFactory.buildAuthNotification(event, EventAction.PASSWORD_UPDATE);
         NotificationResponse response = notificationService.saveNotification(authNotification);
-        messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+        //messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+
+        sseNotificationService.sendNotification(response.getUserId(), response);
     }
 
     @KafkaListener(topics = "user.watchers.prepared")
@@ -63,7 +69,8 @@ public class NotificationEventListener {
         List<Notification> authNotification = notificationFactory.buildPriceUpdateNotification(event, EventAction.PRICE_UPDATE);
         List<NotificationResponse> responses = notificationService.saveNotifications(authNotification);
         responses.forEach(response ->
-                messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response)
+                //messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response)
+                sseNotificationService.sendNotification(response.getUserId(), response)
         );
     }
 
@@ -73,7 +80,8 @@ public class NotificationEventListener {
         // Seller's notification
         Notification sellerOrderNotification = notificationFactory.buildOrderNotification(event, EventAction.ORDER_COMPLETED, event.getSellerId());
         NotificationResponse sellerResponse = notificationService.saveNotification(sellerOrderNotification);
-        messagingTemplate.convertAndSend("/topic/notifications/" + sellerResponse.getUserId(), sellerResponse);
+        //messagingTemplate.convertAndSend("/topic/notifications/" + sellerResponse.getUserId(), sellerResponse);
+        sseNotificationService.sendNotification(sellerResponse.getUserId(), sellerResponse);
     }
 
     @KafkaListener(topics = "order.cancelled")
@@ -84,7 +92,8 @@ public class NotificationEventListener {
         for (Long userId : userIds) {
             Notification notification = notificationFactory.buildOrderNotification(event, EventAction.ORDER_CANCELLED, userId);
             NotificationResponse response = notificationService.saveNotification(notification);
-            messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+           // messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+            sseNotificationService.sendNotification(response.getUserId(), response);
         }
     }
 
@@ -93,7 +102,8 @@ public class NotificationEventListener {
         log.info("Entering listener: order.confirmed for orderId={}", event.getId());
         Notification sellerOrderNotification = notificationFactory.buildOrderNotification(event, EventAction.ORDER_CONFIRMED, event.getSellerId());
         NotificationResponse response = notificationService.saveNotification(sellerOrderNotification);
-        messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+       // messagingTemplate.convertAndSend("/topic/notifications/" + response.getUserId(), response);
+        sseNotificationService.sendNotification(response.getUserId(), response);
     }
 
 }

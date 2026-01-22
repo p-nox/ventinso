@@ -6,18 +6,22 @@ import com.example.inventory_service.service.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -34,7 +38,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     @Transactional
     public void setThumbnail(Long itemId, String filename) {
         itemImageRepository.clearThumbnailForItem(itemId);
-        ItemImage image = itemImageRepository.findByFilename(filename)
+        ItemImage image = itemImageRepository.findByItemIdAndFilename(itemId, filename)
                 .orElseThrow(() -> new RuntimeException("Image not found"));
 
         if (!image.getItemId().equals(itemId)) {
@@ -46,9 +50,12 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     }
 
     @Override
-    public byte[] loadImage(String filename) {
+    public byte[] loadImage(Long itemId, String filename) {
+        ItemImage itemImage = itemImageRepository.findByItemIdAndFilename(itemId, filename)
+                .orElseThrow(() -> new RuntimeException("Image not found"));
+
         try {
-            Path resolvedPath = Paths.get(uploadDir).resolve(filename).normalize();
+            Path resolvedPath = Paths.get(itemImage.getPath()); // χρησιμοποιείς το full path
             return Files.readAllBytes(resolvedPath);
         } catch (IOException e) {
             throw new RuntimeException("Could not read image file: " + filename, e);
@@ -56,16 +63,23 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     }
 
     @Override
-    public void deleteImage(String filename) {
-        itemImageRepository.findByFilename(filename).ifPresent(itemImageRepository::delete);
+    @Transactional
+    public void deleteImage(Long itemId, String filename) {
+        ItemImage image = itemImageRepository
+                .findByItemIdAndFilename(itemId, filename)
+                .orElseThrow(() ->
+                        new RuntimeException("Image not found for itemId=" + itemId));
 
-        Path filePath = Paths.get(uploadDir).resolve(filename).normalize();
+        itemImageRepository.delete(image);
+
+        Path filePath = Paths.get(image.getPath());
         try {
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete image file " + filename, e);
         }
     }
+
 
     @Override
     public void saveImagesForItem(Long itemId, List<MultipartFile> files, String thumbnailFilename) {
@@ -87,10 +101,11 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
 
             try (InputStream is = file.getInputStream()) {
                 Path storageLocation = Paths.get(uploadDir);
-                if (!Files.exists(storageLocation)) {
-                    Files.createDirectories(storageLocation);
+                Path itemFolder = storageLocation.resolve(String.valueOf(itemId));
+                if (!Files.exists(itemFolder)) {
+                    Files.createDirectories(itemFolder);
                 }
-                Path targetPath = storageLocation.resolve(filename);
+                Path targetPath = itemFolder.resolve(filename);
                 Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
                 boolean isThumbnail = originalFilename.equals(thumbnailFilename);
@@ -110,10 +125,35 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
         }
     }
 
+
+    @Override
+    public void deleteImagesForItem(Long itemId){
+
+        Path storageLocation = Paths.get(uploadDir);
+        Path itemFolder = storageLocation.resolve(String.valueOf(itemId));
+
+        try (Stream<Path> walk = Files.walk(itemFolder)) {
+            walk
+                    .sorted(Comparator.reverseOrder()) // files first, then dir
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Failed to delete upload directory for itemId=" + itemId, e
+            );
+        }
+
+    }
+
     @Override
     public List<String> getImageUrlsForItem(Long itemId) {
         return itemImageRepository.findAllByItemId(itemId).stream()
-                .map(image -> "/api/images/" + image.getFilename())
+                .map(image -> "/api/images/" + image.getItemId() + "/" + image.getFilename())
                 .toList();
     }
 
@@ -121,7 +161,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     public String getThumbnailForItem(Long itemId) {
         ItemImage thumbnail = itemImageRepository.findByItemIdAndThumbnailTrue(itemId)
                 .orElseThrow(() -> new RuntimeException("No thumbnail found"));
-        return "/api/images/" + thumbnail.getFilename();
+        return "/api/images/" + itemId + "/" + thumbnail.getFilename();
     }
 
 

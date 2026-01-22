@@ -26,6 +26,7 @@ public class AggregatorController {
     private final WebClient previewClient;
     private final WebClient authClient;
     private final WebClient orderClient;
+    private final WebClient chatClient;
 
     public AggregatorController(WebClient.Builder webClientBuilder) {
         this.inventoryClient = webClientBuilder.baseUrl("http://" + ApiConfig.INVENTORY_SERVICE).build();
@@ -33,6 +34,7 @@ public class AggregatorController {
         this.previewClient = webClientBuilder.baseUrl("http://" + ApiConfig.PREVIEW_SERVICE).build();
         this.authClient = webClientBuilder.baseUrl("http://" + ApiConfig.AUTH_SERVICE).build();
         this.orderClient = webClientBuilder.baseUrl("http://" + ApiConfig.ORDER_SERVICE).build();
+        this.chatClient = webClientBuilder.baseUrl("http://" + ApiConfig.CHAT_SERVICE).build();
     }
 
     @GetMapping("/item/{itemId}")
@@ -177,6 +179,68 @@ public class AggregatorController {
             });
         });
     }
+
+
+    @GetMapping("/user-chats/{userId}")
+    @Operation(summary = "Get aggregated chats for sidebar", description = "Fetch chats with participant info, item info and last message")
+    public Mono<List<UserChatsResponse>> getUserChats(@PathVariable Long userId) {
+        return chatClient.get()
+                .uri(ApiConfig.CHAT_SERVICE_URL + "/user-chats/{userId}", userId)
+                .retrieve()
+                .bodyToFlux(ChatSummaryResponse.class)
+                .flatMap(chat -> {
+                    Long otherUserId = chat.senderId().equals(userId) ? chat.receiverId() : chat.senderId();
+
+                    Mono<UserServiceProfileResponse> userMono = userClient.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path(ApiConfig.USER_SERVICE_URL + "/{userId}/profile")
+                                    .build(otherUserId))
+                            .retrieve()
+                            .bodyToMono(UserServiceProfileResponse.class)
+                            .onErrorResume(e -> Mono.just(new UserServiceProfileResponse()));
+
+                    Mono<InventoryServiceResponse> itemMono = inventoryClient.get()
+                            .uri(ApiConfig.INVENTORY_SERVICE_URL + "/{itemId}", chat.itemId())
+                            .retrieve()
+                            .bodyToMono(InventoryServiceResponse.class)
+                            .onErrorResume(e -> Mono.just(new InventoryServiceResponse()));
+
+                    return Mono.zip(userMono, itemMono)
+                            .map(tuple -> {
+                                UserServiceProfileResponse user = tuple.getT1();
+                                InventoryServiceResponse item = tuple.getT2();
+
+                                return UserChatsResponse.builder()
+                                        .chatId(chat.chatId())
+                                        .senderId(chat.senderId())
+                                        .receiverId(chat.receiverId())
+                                        .itemId(chat.itemId())
+                                        .lastMessage(chat.lastMessage())
+                                        .lastUpdated(chat.lastUpdated())
+                                        // User info
+                                        .username(user.getUsername())
+                                        .avatarUrl(user.getAvatarUrl())
+                                        // Item info
+                                        .title(item.getTitle())
+                                        .price(item.getPrice())
+                                        .thumbnailUrl(item.getThumbnailUrl())
+                                        .condition(item.getCondition())
+                                        .build();
+                            });
+                })
+                .collectList();
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     private UserProfileResponse buildUserProfileResponse(UserServiceResponse user, List<PreviewServiceResponse> items) {
         return UserProfileResponse.builder()

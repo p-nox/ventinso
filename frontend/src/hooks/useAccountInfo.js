@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { passwordChange, emailChange, nameChange } from "@services/AuthService";
 import { getUserProfile } from "@services/UserService";
-import { formatDate } from "@utils/utils";
+import { formatDate } from "@utils/Utils";
 
 export function useAccountInfo(userId) {
   const [user, setUser] = useState({
