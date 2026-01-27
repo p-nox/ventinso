@@ -12,8 +12,7 @@ target/
 node_modules/
 build/
 
-# Docker / DB
-backend/docker/mysql/data/
+# Docker
 *.sock
 *.log
 
@@ -23,7 +22,7 @@ backend/docker/mysql/data/
 *.iml
 
 # Uploads (user avatars, item images)
-backend/uploads/
+./uploads/
 
 # Environment files
-backend/.env
+backend/config/.env

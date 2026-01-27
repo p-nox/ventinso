@@ -4,7 +4,7 @@ import { Tag } from "@components/ui";
 import FavoriteButton from "@components/Buttons/FavoriteButton/FavoriteButton";
 import { useAuth } from "@context/AuthContext";
 import { API_BASE_URL, Paths } from "@config/Config";
-import { getRatingPercentageAndLabel } from '@utils/Utils';
+import { getRatingPercentageAndLabel } from '@utils/utils';
 
 export default function ItemCard({ item, showUserInfo }) {
   if (!item) return null;

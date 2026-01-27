@@ -54,7 +54,8 @@ export default function ItemPageButtons({ item }) {
       receiverAvatar: item.avatarUrl,
       itemId: item.id,
       thumbnailUrl: item.thumbnailUrl,
-      title: item.title
+      title: item.title,  
+      price: item.price
     });
 
     setSelectedChat(chat);
@@ -71,7 +72,8 @@ export default function ItemPageButtons({ item }) {
       receiverAvatar: item.avatarUrl,
       itemId: item.id,
       thumbnailUrl: item.thumbnailUrl,
-      title: item.title
+      title: item.title,
+      price: item.price
     });
 
     setSelectedChat(chat);

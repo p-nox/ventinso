@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ChatListItem.module.css";
 import Avatar from "../Avatar";
-import { formatTimestamp } from "@utils/Utils";
+import { formatTimestamp } from "@utils/utils";
 
 export function ChatListItem({ chat, isSelected, onClick }) {
     return (

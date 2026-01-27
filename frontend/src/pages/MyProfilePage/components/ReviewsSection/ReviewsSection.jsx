@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Paths } from '@config/Config';
-import { formatDate } from '@utils/Utils';
+import { formatDate } from '@utils/utils';
 import styles from "./ReviewsSection.module.css";
 import { SectionTitle } from '@components/ui';
 

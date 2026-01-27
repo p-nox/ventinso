@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./Tag.module.css";
-import { formatText } from '@utils/Utils';
+import { formatText } from '@utils/utils';
 
 export default function ConditionTag({
   value,

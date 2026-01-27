@@ -40,7 +40,8 @@ public class SecurityConfig {
                                 "/api/webjars/**",
                                 "/api-docs/**",
                                 "/favicon.ico",
-                                "/api/aggregated/**"
+                                "/api/aggregated/**",
+                                "/actuator/prometheus"
                         ).permitAll()
                         .pathMatchers("/notifications/**").permitAll()
                         .pathMatchers("/chats/**").permitAll()

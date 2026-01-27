@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "./MessagesList.module.css";
 import Avatar from "../Avatar";
 import { API_URLS, Paths } from "@config/Config";
-import { formatTimestamp } from "@utils/Utils";
+import { formatTimestamp } from "@utils/utils";
 import { ImageLightBox } from "@components/ui";
 import { Check } from "lucide-react";
 import { useChatUI } from "@context/ChatUIProvider";
@@ -173,11 +173,10 @@ export function MessagesList({ messages, chatId, price }) {
     }
 
     if (type === "MEDIA") {
-      const files = msg.fileUrls
-        ? typeof msg.fileUrls === "string"
-          ? JSON.parse(msg.paylod)
-          : msg.payload
-        : parseMediaContent(msg.payload);
+
+      const files = Array.isArray(msg.payload) 
+                    ? msg.payload 
+                    : JSON.parse(msg.payload);
 
       images = files.filter((f) => f.match(/\.(jpeg|jpg|png|gif)$/i));
       videos = files.filter((f) => f.match(/\.(mp4|webm|ogg)$/i));
@@ -304,7 +303,6 @@ export function MessagesList({ messages, chatId, price }) {
         </div>
       );
     }
-
 
     if (type === "COUNTER_OFFER") {
       return (

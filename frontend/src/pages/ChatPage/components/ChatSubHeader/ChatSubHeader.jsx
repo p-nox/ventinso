@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 
 
 export function ChatSubHeader({ chat }) {
+
+  console.log("Chat object:", chat);
   return (
     <div className={styles.container}>
       <Link to={Paths.ITEM(chat.itemId)}>

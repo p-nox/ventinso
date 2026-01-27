@@ -183,7 +183,7 @@ public class AggregatorController {
 
     @GetMapping("/user-chats/{userId}")
     @Operation(summary = "Get aggregated chats for sidebar", description = "Fetch chats with participant info, item info and last message")
-    public Mono<List<UserChatsResponse>> getUserChats(@PathVariable Long userId) {
+    public Mono<List<UserChatsResponse>> getUserChats(@PathVariable("userId") Long userId) {
         return chatClient.get()
                 .uri(ApiConfig.CHAT_SERVICE_URL + "/user-chats/{userId}", userId)
                 .retrieve()
