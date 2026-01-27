@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getItem } from '@services/InventoryService';
 import { API_BASE_URL } from '@config/Config';
 import { useAuth } from '@context/AuthContext';
-import { getRelativeTime, formatText } from '@utils/Utils';
+import { getRelativeTime, formatText } from '@utils/utils';
 import { ItemPageButtons, ItemControlPanel, ItemCardBig, UserSummaryCard } from './components';
 import styles from './ItemPage.module.css';
 import { ItemCarousel } from '@components/ui';

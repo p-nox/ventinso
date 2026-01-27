@@ -5,6 +5,7 @@ import com.example.chat_service.entity.Chat;
 import com.example.chat_service.entity.Message;
 import com.example.chat_service.entity.UserSnapshot;
 import com.example.chat_service.enums.MessageType;
+import com.example.chat_service.exception.AccessDeniedException;
 import com.example.chat_service.repository.ChatRepository;
 import com.example.chat_service.repository.MessageRepository;
 import com.example.chat_service.repository.UserSnapshotRepository;
@@ -36,7 +37,6 @@ public class ChatServiceImpl implements ChatService {
     private final UserSnapshotRepository userSnapshotRepository;
     private final FileStorageService fileStorageService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final Mapper mapper;
 
     // Buffer for chunks
     private final Map<String, TreeMap<Integer, String>> chunkBuffers = new ConcurrentHashMap<>();
@@ -46,65 +46,10 @@ public class ChatServiceImpl implements ChatService {
     private final List<String> allFileUrls = Collections.synchronizedList(new ArrayList<>());
     private final Object allFilesLock = new Object();
 
-
-
-
-
-    @Override
-    @Transactional
-    public WebSocketMessage sendMessage(WebSocketMessageRequest request) {
-        MessageRequest messageReq = request.getMessage();
-        if (messageReq == null) {
-            throw new IllegalArgumentException("MessageRequest cannot be null");
-        }
-
-        Message message = saveMessageAndUpdateChat(messageReq, MessageType.TEXT, null);
-        return buildWebSocketMessage(message, null);
-    }
-
-
-    @Override
-    @Transactional
-    public ChatSummaryResponse initChat(MessageRequest request) {
-
-        // Search for existing or create new chat
-        Chat chat = chatRepository.findByParticipantsAndItem(
-                request.getSenderId(),
-                request.getReceiverId(),
-                request.getItemId()
-        ).orElseGet(() -> chatRepository.save(
-                new Chat(request.getSenderId(), request.getReceiverId(), request.getItemId())
-        ));
-
-        // Save the message and update chat with
-        Message savedMessage = saveMessageAndUpdateChat(request, MessageType.TEXT, null);
-
-        ChatSummaryResponse response = ChatSummaryResponse.builder()
-                .chatId(chat.getId())
-                .senderId(request.getSenderId())
-                .receiverId(request.getReceiverId())
-                .itemId(chat.getItemId())
-                .lastMessage(savedMessage.getContent())
-                .lastUpdated(savedMessage.getTimestamp())
-                .build();
-
-        InitChatWebSocketMessage webSocketMessage = InitChatWebSocketMessage.builder()
-                .chatSummaryResponse(response)
-                .senderUsername(request.getSenderUsername())
-                .senderAvatarUrl(request.getSenderAvatar())
-                .build();
-        messagingTemplate.convertAndSend(
-                "/topic/new-chat/" + request.getReceiverId(),
-                webSocketMessage
-        );
-
-        return response;
-    }
-
-
     @Override
     @Transactional
     public void saveChunks(List<FileChunk> chunks, MessageRequest messageRequest, Integer totalChunks, Long chatId, Integer totalFiles) {
+
         if (chunks == null || chunks.isEmpty()) return;
 
         for (FileChunk chunk : chunks) {
@@ -116,6 +61,7 @@ public class ChatServiceImpl implements ChatService {
             synchronized (fileLocks.get(fileKey)) {
                 chunkBuffers.computeIfAbsent(fileKey, k -> new TreeMap<>());
                 chunkBuffers.get(fileKey).put(chunk.getChunkIndex(), chunk.getDataBase64());
+
                 log.info("Buffered chunk {} of file '{}'. Total buffered: {}/{}",
                         chunk.getChunkIndex(), chunk.getFileName(), chunkBuffers.get(fileKey).size(), totalChunks);
 
@@ -155,11 +101,17 @@ public class ChatServiceImpl implements ChatService {
             if (allFileUrls.size() == totalFiles) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
+
+                    List<String> fileUrls = List.copyOf(allFileUrls);
                     String fileUrlsJson = mapper.writeValueAsString(allFileUrls);
 
                     log.info("All files stored. Sending single message with URLs: {}", fileUrlsJson);
-                    Message fileMessage = saveMessageAndUpdateChat(messageRequest, MessageType.MEDIA, fileUrlsJson);
-                    WebSocketMessage wsFileMessage = buildWebSocketMessage(fileMessage, fileUrlsJson);
+                    log.info("Sending single message with URLs: {}", fileUrls);
+                    Message fileMessage = saveMessageAndUpdateChat(
+                            messageRequest,
+                            MessageType.MEDIA,
+                            fileUrlsJson);
+                    WebSocketMessage wsFileMessage = buildWebSocketMessage(fileMessage, fileUrls);
 
                     messagingTemplate.convertAndSend("/topic/messages/" + messageRequest.getReceiverId(), wsFileMessage);
                     messagingTemplate.convertAndSend("/topic/messages/" + messageRequest.getSenderId(), wsFileMessage);
@@ -174,140 +126,7 @@ public class ChatServiceImpl implements ChatService {
             }
         }
     }
-
-
-
-
-    private Message saveMessageAndUpdateChat(MessageRequest messageReq, MessageType type, String storedUrls) {
-
-        Chat chat = chatRepository.findByParticipantsAndItem(
-                messageReq.getSenderId(),
-                messageReq.getReceiverId(),
-                messageReq.getItemId()
-        ).orElseThrow(() -> new EntityNotFoundException("Chat not found"));
-
-        String content = type == MessageType.TEXT
-                ? messageReq.getContent()
-                : storedUrls;
-
-        Message.MessageBuilder messageBuilder = Message.builder()
-                .chat(chat)
-                .senderId(messageReq.getSenderId())
-                .content(content)
-                .messageType(messageReq.getMessageType())
-                .timestamp(LocalDateTime.now());
-
-        // if msg is OFFER_REJECTED or OFFER_ACCEPTED, close the initial OFFER
-        if (messageReq.getMessageType() == MessageType.OFFER_REJECTED || messageReq.getMessageType() == MessageType.OFFER_ACCEPTED) {
-
-            messageRepository.findFirstByChatAndMessageTypeOrderByTimestampDesc(chat, MessageType.OFFER)
-                    .ifPresentOrElse(offerMsg -> {
-                        log.info("Found OPEN OFFER message with id {} and previewContent '{}'", offerMsg.getId(), offerMsg.getContent());
-                        offerMsg.setMessageType(MessageType.OFFER_CLOSED);
-                        messageRepository.save(offerMsg);
-                        log.info("Updated message id {} to OFFER_CLOSED", offerMsg.getId());
-                    }, () -> log.info("No OPEN OFFER message found for chat id {}", chat.getId()));
-        }
-
-        Message message = messageBuilder.build();
-        Message savedMessage = messageRepository.save(message);
-        log.info(savedMessage.getContent());
-
-        chat.setLastMessageId(message.getId());
-        chatRepository.save(chat);
-
-        return message;
-    }
-
-
-
-    private WebSocketMessage buildWebSocketMessage(Message message, String fileUrls) {
-
-        UserSnapshot senderSnapshot = userSnapshotRepository
-                .findById(message.getSenderId())
-                .orElse(new UserSnapshot(message.getSenderId(), "/default/avatar.png"));
-
-        String previewContent = getMessagePreview(message, fileUrls);
-
-        String payload = fileUrls;
-        if (message.getMessageType() == MessageType.OFFER
-                || message.getMessageType() == MessageType.OFFER_ACCEPTED
-                || message.getMessageType() == MessageType.OFFER_REJECTED
-                || message.getMessageType() == MessageType.COUNTER_OFFER) {
-            payload = message.getContent();
-        }
-
-        MessageResponse response = MessageResponse.builder()
-                .id(message.getId())
-                .userId(senderSnapshot.getUserId())
-                .avatarUrl(senderSnapshot.getAvatarUrl())
-                .previewContent(previewContent)
-                .type(message.getMessageType().name())
-                .payload(payload)
-                .isReadByReceiver(message.isReadByReceiver())
-                .timestamp(message.getTimestamp())
-                .build();
-
-        return WebSocketMessage.builder()
-                .chatId(message.getChat().getId())
-                .messageResponse(response)
-                .build();
-    }
-
-    private String getMessagePreview(Message message, Object fileUrls) {
-
-        if (message.getMessageType() == MessageType.MEDIA) {
-            List<String> files = null;
-
-            if (fileUrls != null) {
-                if (fileUrls instanceof String) {
-                    try {
-                        files = new ObjectMapper().readValue((String) fileUrls, List.class);
-                    } catch (Exception e) {
-                        log.warn("Failed to parse payload JSON for messageId={}: {}", message.getId(), e.getMessage());
-                        return "📷📹 Media";
-                    }
-                } else if (fileUrls instanceof List) {
-                    files = (List<String>) fileUrls;
-                }
-            } else {
-                // fallback: parse from message previewContent
-                try {
-                    files = new ObjectMapper().readValue(message.getContent(), List.class);
-                } catch (Exception e) {
-                    log.warn("Failed to parse payload from previewContent for messageId={}: {}", message.getId(), e.getMessage());
-                    return "📷📹 Media";
-                }
-            }
-
-            long imagesCount = files.stream().filter(f -> f.matches(".*\\.(jpg|jpeg|png|gif)$")).count();
-            long videosCount = files.stream().filter(f -> f.matches(".*\\.(mp4|webm|ogg)$")).count();
-
-            if (imagesCount > 0 && videosCount == 0) {
-                return imagesCount == 1 ? "📷 Photo" : "📷 " + imagesCount + " Photos";
-            }
-            if (videosCount > 0 && imagesCount == 0) {
-                return videosCount == 1 ? "📹 Video" : "📹 " + videosCount + " Videos";
-            }
-            return "📷📹 Media";
-        }
-
-        switch (message.getMessageType()) {
-            case OFFER:
-                return "💰 New Offer at " + message.getContent() + " €";
-            case COUNTER_OFFER:
-                return "💡 Counter Offer: " + message.getContent() + " €";
-            case OFFER_ACCEPTED:
-                return "✅ Offer Accepted";
-            case OFFER_REJECTED:
-                return "❌ Offer Rejected";
-            default:
-                return message.getContent();
-        }
-
-    }
-
-
+    
 
     @Override
     public List<ChatSummaryResponse> getUserChats(Long userId) {
@@ -330,7 +149,7 @@ public class ChatServiceImpl implements ChatService {
 
                     LocalDateTime lastUpdated = lastMessage != null ? lastMessage.getTimestamp() : null;
                     String lastMessageContent = lastMessage != null
-                            ? getMessagePreview(lastMessage, null)
+                            ? getMessagePreview(lastMessage)
                             : null;
 
                     return ChatSummaryResponse.builder()
@@ -361,8 +180,7 @@ public class ChatServiceImpl implements ChatService {
                     .orElseThrow(() -> new RuntimeException(
                             "UserSnapshot not found for userId=" + msg.getSenderId()));
 
-            String previewContent = getMessagePreview(msg, null); // preview side bar chat msgs
-
+            String previewContent = getMessagePreview(msg); // preview side bar chat msgs
             String payload = null;
 
             // If it's offer type, payload is the actual offer amount or order info
@@ -384,7 +202,6 @@ public class ChatServiceImpl implements ChatService {
         }).toList();
     }
 
-
     @Override
     @Transactional
     public void deleteChatForUser(Long chatId, Long userId) {
@@ -393,11 +210,15 @@ public class ChatServiceImpl implements ChatService {
 
         if (Objects.equals(chat.getParticipant1Id(), userId)) {
             chat.setParticipant1Left(true);
-        } else {
+        } else if (Objects.equals(chat.getParticipant2Id(), userId)) {
             chat.setParticipant2Left(true);
+        } else {
+            throw new AccessDeniedException("User is not a participant of this chat");
         }
 
+
         if (chat.isParticipant1Left() && chat.isParticipant2Left()) {
+            messageRepository.deleteByChatId(chat.getId());
             chatRepository.delete(chat);
         } else {
             chatRepository.save(chat);
@@ -417,4 +238,171 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
+    @Override
+    @Transactional
+    public WebSocketMessage sendMessage(WebSocketMessageRequest request) {
+        MessageRequest messageReq = request.getMessage();
+        if (messageReq == null) {
+            throw new IllegalArgumentException("MessageRequest cannot be null");
+        }
+
+        Message message = saveMessageAndUpdateChat(messageReq, MessageType.TEXT, null);
+        return buildWebSocketMessage(message, null);
+    }
+
+    @Override
+    @Transactional
+    public ChatSummaryResponse initChat(MessageRequest request) {
+
+        // Search for existing or create new chat
+        Chat chat = chatRepository.findByParticipantsAndItem(
+                request.getSenderId(),
+                request.getReceiverId(),
+                request.getItemId()
+        ).orElseGet(() -> chatRepository.save(
+                new Chat(request.getSenderId(), request.getReceiverId(), request.getItemId())
+        ));
+
+        // Save the message in DB and update chat with last msgId
+        Message savedMessage = saveMessageAndUpdateChat(request, MessageType.TEXT, null);
+
+        ChatSummaryResponse response = ChatSummaryResponse.builder()
+                .chatId(chat.getId())
+                .senderId(request.getSenderId())
+                .receiverId(request.getReceiverId())
+                .itemId(chat.getItemId())
+                .lastMessage(savedMessage.getContent())
+                .lastUpdated(savedMessage.getTimestamp())
+                .build();
+
+        InitChatWebSocketMessage webSocketMessage = InitChatWebSocketMessage.builder()
+                .chatSummaryResponse(response)
+                .senderUsername(request.getSenderUsername())
+                .senderAvatarUrl(request.getSenderAvatar())
+                .build();
+
+        messagingTemplate.convertAndSend(
+                "/topic/new-chat/" + request.getReceiverId(),
+                webSocketMessage
+        );
+
+        return response;
+    }
+
+    private Message saveMessageAndUpdateChat(MessageRequest messageReq, MessageType type, String storedUrls) {
+
+        Chat chat = chatRepository.findByParticipantsAndItem(
+                messageReq.getSenderId(),
+                messageReq.getReceiverId(),
+                messageReq.getItemId()
+        ).orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+        // if the MessageType == MEDIA we want the file urls to sent
+        String content = type == MessageType.TEXT
+                ? messageReq.getContent()
+                : storedUrls;
+
+        Message.MessageBuilder messageBuilder = Message.builder()
+                .chat(chat)
+                .senderId(messageReq.getSenderId())
+                .content(content)
+                .messageType(messageReq.getMessageType())
+                .timestamp(LocalDateTime.now());
+
+        // if msg is OFFER_REJECTED or OFFER_ACCEPTED, close the initial OFFER
+        if (messageReq.getMessageType() == MessageType.OFFER_REJECTED || messageReq.getMessageType() == MessageType.OFFER_ACCEPTED) {
+
+            messageRepository.findFirstByChatAndMessageTypeOrderByTimestampDesc(chat, MessageType.OFFER)
+                    .ifPresentOrElse(offerMsg -> {
+                        log.info("Found OPEN OFFER message with id {} and previewContent '{}'", offerMsg.getId(), offerMsg.getContent());
+
+                        offerMsg.setMessageType(MessageType.OFFER_CLOSED);
+                        messageRepository.save(offerMsg);
+
+                        log.info("Updated message id {} to OFFER_CLOSED", offerMsg.getId());
+
+                    }, () -> log.info("No OPEN OFFER message found for chat id {}", chat.getId()));
+        }
+
+        Message message = messageBuilder.build();
+        messageRepository.save(message);
+
+        chat.setLastMessageId(message.getId());
+        chatRepository.save(chat);
+
+        return message;
+    }
+
+    private WebSocketMessage buildWebSocketMessage(Message message, List<String> fileUrls) {
+
+        UserSnapshot senderSnapshot = userSnapshotRepository
+                .findById(message.getSenderId())
+                .orElse(new UserSnapshot(message.getSenderId(), "/default/avatar.png"));
+
+        String previewContent =
+                message.getMessageType() == MessageType.MEDIA
+                        ? getMediaPreview(fileUrls)
+                        : getMessagePreview(message);
+
+        Object payload =
+                message.getMessageType() == MessageType.MEDIA
+                        ? fileUrls
+                        : message.getContent();
+
+        MessageResponse response = MessageResponse.builder()
+                .id(message.getId())
+                .userId(senderSnapshot.getUserId())
+                .avatarUrl(senderSnapshot.getAvatarUrl())
+                .previewContent(previewContent)
+                .type(message.getMessageType().name())
+                .payload(payload)
+                .isReadByReceiver(message.isReadByReceiver())
+                .timestamp(message.getTimestamp())
+                .build();
+
+        return WebSocketMessage.builder()
+                .chatId(message.getChat().getId())
+                .messageResponse(response)
+                .build();
+    }
+
+    private String getMessagePreview(Message message) {
+        if (message.getMessageType() == MessageType.MEDIA && message.getContent() != null) {
+            try {
+                // parse JSON string to List<String>
+                ObjectMapper mapper = new ObjectMapper();
+                List<String> fileUrls = mapper.readValue(message.getContent(), List.class);
+                return getMediaPreview(fileUrls);
+            } catch (JsonProcessingException e) {
+                log.warn("Failed to parse file URLs JSON for messageId={}: {}", message.getId(), e.getMessage());
+            }
+        }
+
+        return switch (message.getMessageType()) {
+            case OFFER -> "💰 New Offer at " + message.getContent() + " €";
+            case COUNTER_OFFER -> "💡 Counter Offer: " + message.getContent() + " €";
+            case OFFER_ACCEPTED -> "✅ Offer Accepted";
+            case OFFER_REJECTED -> "❌ Offer Rejected";
+            default -> message.getContent();
+        };
+    }
+
+    private String getMediaPreview(List<String> fileUrls) {
+        long images = fileUrls.stream().filter(this::isImage).count();
+        long videos = fileUrls.stream().filter(this::isVideo).count();
+
+        if (images > 0 && videos == 0) return images == 1 ? "📷 Photo" : "📷 " + images + " Photos";
+        if (videos > 0 && images == 0) return videos == 1 ? "📹 Video" : "📹 " + videos + " Videos";
+        return "📷📹 Media";
+    }
+
+    private boolean isImage(String file) {
+        String f = file.toLowerCase();
+        return f.endsWith(".jpg") || f.endsWith(".jpeg") || f.endsWith(".png");
+    }
+
+    private boolean isVideo(String file) {
+        String f = file.toLowerCase();
+        return f.endsWith(".mp4") || f.endsWith(".webm");
+    }
 }

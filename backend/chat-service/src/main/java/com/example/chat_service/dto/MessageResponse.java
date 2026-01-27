@@ -10,7 +10,7 @@ public record MessageResponse(
         String avatarUrl,
         String previewContent, // used for chat sidebar
         String type,
-        String payload, // actual message content
+        Object payload, // actual message content
         boolean isReadByReceiver,
         LocalDateTime timestamp
 ) {}

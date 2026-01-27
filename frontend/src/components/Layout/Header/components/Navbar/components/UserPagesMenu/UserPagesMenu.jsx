@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './UserPagesMenu.module.css';
 import { useAuth } from '@context/AuthContext';
 import { Paths } from '@config/Config';
@@ -15,14 +15,20 @@ export default function UserPagesMenu() {
 
   return (
     <ul className={styles.dropdown}>
-      <li onClick={() => navigator(Paths.ACCOUNT(userId))}>
-        Account
+      <li>
+        <Link className={styles.dropdownLink} to={Paths.ACCOUNT(userId)}>
+          Account
+        </Link>
       </li>
-      <li onClick={() => navigator(Paths.PROFILE(userId))}>
-        My Profile
+      <li>
+        <Link className={styles.dropdownLink} to={Paths.PROFILE(userId)}>
+          My Profile
+        </Link>
       </li>
-      <li onClick={() => navigator(Paths.ORDERS_HISTORY)}>
-        My Orders
+      <li>
+        <Link className={styles.dropdownLink} to={Paths.ORDERS_HISTORY}>
+          My Orders
+        </Link>
       </li>
       <li onClick={handleLogout}>
         Log Out

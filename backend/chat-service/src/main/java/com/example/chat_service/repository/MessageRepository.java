@@ -3,6 +3,7 @@ package com.example.chat_service.repository;
 import com.example.chat_service.entity.Chat;
 import com.example.chat_service.entity.Message;
 import com.example.chat_service.enums.MessageType;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +24,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "WHERE m.chat.id = :chatId AND m.senderId <> :userId AND m.isReadByReceiver = false")
     void markMessagesAsRead(@Param("chatId") Long chatId, @Param("userId") Long userId);
 
+
+    @Transactional
+     void deleteByChatId(Long chatId);
 
     Optional<Message> findFirstByChatAndMessageTypeOrderByTimestampDesc(Chat chat, MessageType type);
 }

@@ -5,7 +5,7 @@ import PriceBtn from '@components/Buttons/PriceBtn/PriceBtn';
 import Button from '@components/Buttons/Button/Button';
 import PriceSlider from '../PriceSlider/PriceSlider';
 import { getCategories } from '@services/InventoryService';
-import { formatText } from '@utils/Utils';
+import { formatText } from '@utils/utils';
 import { Paths } from '@config/Config';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 

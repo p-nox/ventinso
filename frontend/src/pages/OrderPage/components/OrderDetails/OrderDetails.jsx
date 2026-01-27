@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { API_BASE_URL, Paths } from "@config/Config.js";
 import styles from './OrderDetails.module.css'
 import { Tag } from "@components/ui";
-import { formatStatus, formatDateTime } from '@utils/Utils';
+import { formatStatus, formatDateTime } from '@utils/utils';
 
 export default function OrderDetails({ order }) {
     return (

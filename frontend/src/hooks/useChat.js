@@ -131,7 +131,7 @@ export function useChat() {
 
 
 
-    const openOrCreateChat = ({ receiverId, receiverUsername, receiverAvatar, itemId, thumbnailUrl, title }, chatsList) => {
+    const openOrCreateChat = ({ receiverId, receiverUsername, receiverAvatar, itemId, thumbnailUrl, title, price }, chatsList) => {
         const chatsToCheck = chatsList || chats;
         if (!userId) return;
 
@@ -157,6 +157,7 @@ export function useChat() {
                 receiverAvatar,
                 thumbnailUrl,
                 title,
+                price,
                 isTemp: true,
             };
             console.log("temp chat:", newTempChat);

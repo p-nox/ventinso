@@ -4,7 +4,7 @@ import styles from "./Breadcrumbs.module.css";
 import { getUser } from "@services/UserService";
 import { getItem } from "@services/InventoryService";
 import { Paths } from "@config/Config";
-import { formatText } from '@utils/Utils';
+import { formatText } from '@utils/utils';
 
 export default function Breadcrumbs() {
   const location = useLocation();

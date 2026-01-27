@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./UserSummaryCard.module.css";
 import { Paths, API_BASE_URL } from "@config/Config";
-import { getRatingPercentageAndLabel, formatMemberSince } from '@utils/Utils';
+import { getRatingPercentageAndLabel, formatMemberSince } from '@utils/utils';
 import { Calendar, Archive } from "lucide-react";
 import { Link } from "react-router-dom";
 

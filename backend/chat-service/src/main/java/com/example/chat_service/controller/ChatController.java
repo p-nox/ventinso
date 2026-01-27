@@ -20,7 +20,7 @@ public class ChatController {
     private final ChatServiceImpl chatService;
 
     @GetMapping("/user-chats/{userId}")
-    public ResponseEntity<List<ChatSummaryResponse>> getUserChats(@PathVariable Long userId) {
+    public ResponseEntity<List<ChatSummaryResponse>> getUserChats(@PathVariable("userId") Long userId) {
         List<ChatSummaryResponse> chats = chatService.getUserChats(userId);
         return ResponseEntity.ok(chats);
     }
