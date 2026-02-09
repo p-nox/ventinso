@@ -45,7 +45,7 @@ Built with **Java Spring Boot (backend)** microservices architecture and **React
 - **Eureka** for service discovery
 - **Redis** (planned) for caching and session management
 
-![Architecture Diagram](images/architecture.png)
+![Architecture Diagram](architecture.png)
 
 ---
 
