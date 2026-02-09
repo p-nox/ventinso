@@ -1,24 +1,53 @@
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--header-color);
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--header-main-color-bg);
+  z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .headerContainer {
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2px 0;
-    height: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 3rem; 
+}
+
+.leftGroup {
+  width: 70%;
+  display: flex;
+  align-items: center;
+  gap: 25rem;
 }
 
 .logoImage {
-    height: 15px;
-    width: auto;
-    margin-left: 15px;
+  height: 15px;
+  width: auto;
+  margin-left: 2.5rem;
+}
+
+.rightGroup {
+  display: flex;
+  align-items: center;
+  padding-right: 1rem;
+}
+
+.loginButton {
+  background: var(--theme-color);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: var(box-shadow);
+}
+
+.loginButton:hover {
+  box-shadow: var(--box-shadow-hover);
+  background: var(--header-login-color-bg-hover);
 }

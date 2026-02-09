@@ -6,15 +6,16 @@ import Button from "@components/Buttons/Button/Button";
 import OfferModal from "@components/OfferModal/OfferModal";
 import styles from "./ItemPageButtons.module.css";
 import { Mail, ShoppingCart, HandCoins } from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function ItemPageButtons({ item }) {
-  const { userId, username } = useAuth();
+export default function ItemPageButtons({ item, user, openLogin }) {
+  const { userId: currentUserId, username: currentUsername } = useAuth();
   const [open, setOpen] = useState(false);
   const { setIsOpen, setSelectedChat, addMessage, openOrCreateChat } = useChatUI();
 
   const handleBuyNow = async () => {
-    if (!userId) {
-      alert("You must be logged in to proceed.");
+    if (!currentUserId) {
+      openLogin();
       return;
     }
 
@@ -24,15 +25,16 @@ export default function ItemPageButtons({ item }) {
     if (!confirmPurchase) return;
 
     const orderRequest = {
-      buyerId: userId,
-      buyerUsername: username,
-      sellerId: item.userId,
-      sellerUsername: item.username,
-      itemId: item.id,
+      buyerId: currentUserId,
+      buyerUsername: currentUsername,
+      sellerId: user.userId,
+      sellerUsername: user.username,
+      itemId: item.itemId,
       itemTitle: item.title,
       itemCondition: item.condition,
       thumbnailUrl: item.thumbnailUrl,
       price: item.price,
+      orderType: 'DEFAULT'
     };
 
     try {
@@ -46,15 +48,18 @@ export default function ItemPageButtons({ item }) {
   };
 
   const handleContact = () => {
-    if (!userId) return;
+    if (!currentUserId) {
+      openLogin();
+      return;
+    }
 
     const chat = openOrCreateChat({
-      receiverId: item.userId,
-      receiverUsername: item.username,
-      receiverAvatar: item.avatarUrl,
-      itemId: item.id,
+      receiverId: user.userId,
+      receiverUsername: user.username,
+      receiverAvatar: user.avatarUrl,
+      itemId: item.itemId,
       thumbnailUrl: item.thumbnailUrl,
-      title: item.title,  
+      title: item.title,
       price: item.price
     });
 
@@ -62,15 +67,22 @@ export default function ItemPageButtons({ item }) {
     setIsOpen(true);
   };
 
+  const handleOfferClick = () => {
+    if (!currentUserId) {
+      openLogin();
+      return;
+    }
+    setOpen(true);
+  };
 
   const handleOfferSubmit = async (offerAmount) => {
     setOpen(false);
-    
+
     const chat = openOrCreateChat({
-      receiverId: item.userId,
-      receiverUsername: item.username,
-      receiverAvatar: item.avatarUrl,
-      itemId: item.id,
+      receiverId: user.userId,
+      receiverUsername: user.username,
+      receiverAvatar: user.avatarUrl,
+      itemId: item.itemId,
       thumbnailUrl: item.thumbnailUrl,
       title: item.title,
       price: item.price
@@ -83,11 +95,8 @@ export default function ItemPageButtons({ item }) {
       content: offerAmount,
       type: "OFFER",
     };
-
-    console.log("offerMessage", offerMessage);
     await addMessage(offerMessage, chat);
   };
-
 
   return (
     <div className={styles.wrapper}>
@@ -97,7 +106,7 @@ export default function ItemPageButtons({ item }) {
         className={styles.iconOnly}
         iconProps={{ size: 18 }}
         variant="contact"
-        label={`Contact ${item.username}`}
+        label={`Contact ${user.username}`}
         onClick={handleContact}
       />
       <Button
@@ -108,8 +117,8 @@ export default function ItemPageButtons({ item }) {
         variant="buyNow"
         label="Buy It Now"
         onClick={handleBuyNow}
-        disabled={userId === item.userId}
-        title={userId === item.userId ? "You cannot buy your own item" : ""}
+        disabled={currentUserId === user.userId}
+        title={currentUserId === user.userId ? "You cannot buy your own item" : ""}
       />
       <Button
         icon={HandCoins}
@@ -118,7 +127,7 @@ export default function ItemPageButtons({ item }) {
         iconProps={{ size: 18 }}
         variant="offer"
         label="Make Offer"
-        onClick={() => setOpen(true)}
+        onClick={handleOfferClick}
       />
 
       {open && (

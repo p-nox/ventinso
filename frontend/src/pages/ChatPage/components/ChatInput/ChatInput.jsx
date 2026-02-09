@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./ChatInput.module.css";
+import { X } from "lucide-react";
 import { Image } from "lucide-react";
 import { useChatUI } from "@context/ChatUIProvider";
 import { useChatSocketContext } from "@context/ChatWebSocketContext";
@@ -63,10 +64,14 @@ export function ChatInput({ selectedChat, userId }) {
         setFiles(prev => prev.filter((_, i) => i !== index));
     };
 
+    if (!selectedChat) return null;
+
     return (
         <div className={styles.inputArea}>
+
             {previews.length > 0 && (
                 <div className={styles.previewContainer}>
+
                     {previews.map((p, index) => (
                         <div key={index} className={styles.previewItem}>
                             {p.file.type.startsWith("image/") ? (
@@ -74,15 +79,22 @@ export function ChatInput({ selectedChat, userId }) {
                             ) : (
                                 <video src={p.url} className={styles.previewMedia} muted />
                             )}
-                            <button onClick={() => removeFile(index)} className={styles.removeButton}>
-                                x
+                            <button
+                                onClick={() => removeFile(index)}
+                                className={styles.removeButton}
+                                type="button"
+                            >
+                                <X size={16} />
                             </button>
+
                         </div>
                     ))}
+
                 </div>
             )}
 
             <div className={styles.inputRow}>
+
                 <textarea
                     placeholder="Type a message..."
                     className={styles.inputBox}
@@ -90,19 +102,18 @@ export function ChatInput({ selectedChat, userId }) {
                     onChange={(e) => {
                         setText(e.target.value);
                         if (e.shiftKey || e.target.value.includes("\n")) {
-                            e.target.style.height = "auto"; 
-                            e.target.style.height = e.target.scrollHeight + "px"; 
+                            e.target.style.height = "auto";
+                            e.target.style.height = e.target.scrollHeight + "px";
                         }
                     }}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             handleSend();
-                            e.target.style.height = "40px"; 
+                            e.target.style.height = "40px";
                         }
                     }}
                 />
-
 
                 <button
                     type="button"
@@ -111,6 +122,7 @@ export function ChatInput({ selectedChat, userId }) {
                 >
                     <Image size={25} />
                 </button>
+
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -122,7 +134,9 @@ export function ChatInput({ selectedChat, userId }) {
                 <button className={styles.sendButton} onClick={handleSend} disabled={sending}>
                     {sending ? "Sending..." : "Send"}
                 </button>
+
             </div>
+
         </div>
     );
 }

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import styles from "./ImageLightBox.module.css";
 import ScrollButton from "@components/Buttons/ScrollButton/ScrollButton";
+import { X } from "lucide-react";
+
 
 export default function ImageLightBox({
   images = [],
@@ -12,7 +14,7 @@ export default function ImageLightBox({
   onNext,
   onPrev
 }) {
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(startIndex);
 
@@ -20,7 +22,7 @@ export default function ImageLightBox({
     setCurrentIndex(startIndex);
   }, [startIndex]);
 
- 
+
   const showOverlay = externalIsOpen !== undefined ? externalIsOpen : isOpen;
 
   const close = () => {
@@ -58,17 +60,28 @@ export default function ImageLightBox({
       {showOverlay &&
         createPortal(
           <div className={styles.overlay} onClick={close}>
+        
+            <button
+              className={styles.closeBtn}
+              onClick={(e) => { e.stopPropagation(); close(); }}
+            >
+              <X size={28} color="white" />
+            </button>
+
             <ScrollButton direction="left" onClick={prev} show={true} />
+
             <img
               src={images[currentIndex]}
               alt={thumbnailAlt}
               className={styles.fullImage}
               onClick={(e) => e.stopPropagation()}
             />
+
             <ScrollButton direction="right" onClick={next} show={true} />
           </div>,
           document.body
         )}
     </>
   );
+
 }

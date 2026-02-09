@@ -1,19 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "@components/Cards/UserCard/UserCard.module.css";
-import { Paths, API_BASE_URL } from "@config/Config";
+import { Paths, API_URLS } from "@config/Config";
 import { Camera } from "lucide-react";
 
 export default function UserCard({
-  avatarUrl,
-  username,
-  totalSales,
-  sales,
   userId,
-  registeredAt,
+  username,
+  avatarUrl,
   editable = false,
-  onAvatarChange,
   disableLink = false,
+  onAvatarChange
 }) {
   return (
     <div className={styles.wrapper}>
@@ -26,7 +23,6 @@ export default function UserCard({
       />
       <Username
         username={username}
-        totalSales={totalSales}
         userId={userId}
         disableLink={disableLink}
       />
@@ -36,7 +32,7 @@ export default function UserCard({
 
 
 
-function Username({ username, totalSales, userId, disableLink }) {
+function Username({ username, userId, disableLink }) {
   const content = (
     <p className={styles.username}>
       {username}
@@ -66,18 +62,21 @@ function Avatar({ avatarUrl, editable, onAvatarChange }) {
       const isAbsolute = avatarUrl.startsWith("http");
       const newSrc = isAbsolute
         ? `${avatarUrl}?t=${cacheBuster}`
-        : `${API_BASE_URL}${avatarUrl}?t=${cacheBuster}`;
+        : `${API_URLS.AVATAR_FILE(avatarUrl)}?t=${cacheBuster}`;
       setLoading(true);
       const img = new Image();
       img.src = newSrc;
+
       img.onload = () => {
         setImgSrc(newSrc);
         setLoading(false);
       };
+
       img.onerror = () => {
         setImgSrc(null);
         setLoading(false);
       };
+
     } else {
       setImgSrc(null);
       setLoading(true);
@@ -87,9 +86,16 @@ function Avatar({ avatarUrl, editable, onAvatarChange }) {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     if (onAvatarChange) {
-      await onAvatarChange(file);
-      setCacheBuster(Date.now());
+      try {
+        await onAvatarChange(file); // upload  server
+        setCacheBuster(Date.now()); // force reload
+      } catch (err) {
+        console.error("Avatar upload failed:", err);
+        // fallback 
+        setImgSrc(avatarUrl ? `${API_URLS.AVATAR_FILE(avatarUrl)}?t=${Date.now()}` : null);
+      }
     }
   };
 

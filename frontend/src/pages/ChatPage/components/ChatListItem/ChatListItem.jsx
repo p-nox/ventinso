@@ -14,8 +14,11 @@ export function ChatListItem({ chat, isSelected, onClick }) {
                 <Avatar src={chat.avatarUrl} />
 
                 <div className={styles.chatInfo}>
+
                     <div className={styles.chatName}>{chat.username}</div>
+
                     <div className={styles.lastMessage}>{chat.lastMessage}</div>
+                    
                 </div>
 
                 <div className={styles.lastUpdated}>

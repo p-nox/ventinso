@@ -1,6 +1,9 @@
 package com.example.user_service.utils;
 
-import com.example.user_service.dto.*;
+import com.example.user_service.dto.request.UpdateProfileRequest;
+import com.example.user_service.dto.response.FavoriteResponse;
+import com.example.user_service.dto.response.UserResponse;
+import com.example.user_service.dto.response.UserSummaryResponse;
 import com.example.user_service.entity.Favorite;
 import com.example.user_service.entity.User;
 import org.mapstruct.Mapping;
@@ -15,6 +18,7 @@ public interface Mapper {
     @Mapping(target = "avatarUrl",source = "entity", qualifiedByName = "mapAvatarPath")
     UserResponse toDto(User entity);
 
+    @Mapping(source = "id", target = "userId")
     @Mapping(target = "avatarUrl",source = "entity", qualifiedByName = "mapAvatarPath")
     UserSummaryResponse toUserSummaryView(User entity);
 
@@ -27,7 +31,7 @@ public interface Mapper {
     @Named("mapAvatarPath")
     default String mapAvatarPath(User entity) {
         if (entity.getAvatarUrl() == null || entity.getAvatarUrl().isEmpty()) return null;
-        return "/api/users/" + Paths.get(entity.getAvatarUrl()).getFileName();
+        return entity.getAvatarUrl();
     }
 
 }

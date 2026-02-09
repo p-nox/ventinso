@@ -1,6 +1,6 @@
 package com.example.user_service.service;
 
-import com.example.user_service.dto.WalletResponse;
+import com.example.user_service.dto.response.WalletResponse;
 
 import java.math.BigDecimal;
 

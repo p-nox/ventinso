@@ -1,68 +1,90 @@
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "@config/Config.js";
+import { API_URLS } from "@config/Config.js";
 import { deleteImage } from "@services/InventoryService.js";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
-export default function useImagePreviews(files, setFiles, existingImages, setExistingImages, setThumbnail) {
-
+export default function useImagePreviews(
+  files,
+  setFiles,
+  existingImages,
+  setExistingImages,
+  thumbnail,
+  setThumbnail
+) {
   const [previews, setPreviews] = useState([]);
-  const [thumbnailIndex, setThumbnailIndex] = useState(-1);
-  const { itemId  } = useParams();
+  const [thumbnailIndex, setThumbnailIndex] = useState();
+  const { itemId } = useParams();
+
+useEffect(() => {
+   console.log("new thumbnail index", thumbnailIndex);
+}, [files, existingImages, thumbnailIndex]);
 
   useEffect(() => {
+  
     const existingUrls = existingImages
-      .map(img => {
-        if (typeof img === "string") 
-            return img.startsWith("http") ? img : `${API_BASE_URL}/${img.replace(/^\/+/, "")}`;
-        if (img.thumbnailUrl || img.imageUrls?.[0]) 
-            return img.thumbnailUrl || img.imageUrls[0];
-        return null;
-      })
+      .map(path => API_URLS.IMAGE_FILE(path.replace(/^\/+/, "")))
       .filter(Boolean);
 
     const newFilesUrls = files
-      .map(file => file instanceof File ? URL.createObjectURL(file) : null)
+      .map(f => f instanceof File ? URL.createObjectURL(f) : null)
       .filter(Boolean);
 
     const allPreviews = [...existingUrls, ...newFilesUrls];
     setPreviews(allPreviews);
 
-    if (allPreviews.length > 0 && thumbnailIndex === -1) {
-      const firstThumbnail = existingImages[0] || files[0]?.url || files[0]?.name;
-      if (firstThumbnail) {
-        setThumbnail(typeof firstThumbnail === "string" ? firstThumbnail.split("/").pop() : firstThumbnail);
-        setThumbnailIndex(0);
-      }
-    }
+    // check if thumbnail is valid after update of preview items
+    const thumbnailExists = allPreviews.some(url => {
+      const filename = url.split("/").pop();
+      return filename === thumbnail;
+    });
 
-    return () => {
-      newFilesUrls.forEach(url => URL.revokeObjectURL(url));
-    };
-  }, [files, existingImages, setThumbnail, thumbnailIndex]);
+
+    if (!thumbnailExists) {
+      const firstOfExistingFiles = existingImages[0]?.split("/").pop();
+      const firstOfNewFiles = files[0]?.name;
+      const newThumb = firstOfExistingFiles || firstOfNewFiles || null;
+
+      setThumbnail(newThumb);
+      setThumbnailIndex(newThumb ? 0 : -1);
+    } else {
+      const newIndex = allPreviews.findIndex(url => url.split("/").pop() === thumbnail);
+      setThumbnailIndex(newIndex);
+    }
+    return () => newFilesUrls.forEach(url => URL.revokeObjectURL(url));
+  }, [files, existingImages]);
+
 
   async function handleDelete(index) {
+    console.log("Delete file");
+
     const existingCount = existingImages.length;
+    let newExisting = [...existingImages];
+    let newFiles = [...files];
 
     if (index < existingCount) {
       const rawValue = existingImages[index];
       const filename = typeof rawValue === "string" ? rawValue.split("/").pop() : null;
-      console.log(itemId );
 
       if (filename) {
-        try { await deleteImage(itemId, filename); } 
-        catch (err) { console.error("[handleDelete] Failed to delete image:", err); }
+        try {
+          await deleteImage(itemId, filename);
+        } catch (err) {
+          console.error("[handleDelete] Failed to delete image:", err);
+        }
       }
 
-      const newExisting = [...existingImages];
       newExisting.splice(index, 1);
       setExistingImages(newExisting);
     } else {
       const fileIndex = index - existingCount;
-      setFiles(prev => prev.filter((_, i) => i !== fileIndex));
+      newFiles.splice(fileIndex, 1);
+      setFiles(newFiles);
     }
 
+    // thumbnail fix
     if (thumbnailIndex === index) {
-      const newThumb = existingImages[0] || files[0]?.name || null;
+      const newThumb = newExisting[0] || newFiles[0]?.name || null;
+
       setThumbnail(newThumb);
       setThumbnailIndex(newThumb ? 0 : -1);
     } else if (thumbnailIndex > index) {
@@ -70,5 +92,10 @@ export default function useImagePreviews(files, setFiles, existingImages, setExi
     }
   }
 
-  return { previews, thumbnailIndex, setThumbnailIndex, handleDelete };
+  return {
+    previews,
+    thumbnailIndex,
+    setThumbnailIndex,
+    handleDelete
+  };
 }

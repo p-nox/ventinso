@@ -71,28 +71,28 @@ export default function ChatPage() {
   return (
     <>
       {isOpen && isMinimized && !isFullView && (
-        <div
-          onClick={handleRestore}
-          className={styles.minimizedBar}
-        >
-          <span>Chat</span>
+        <div className={styles.minimizedBar}>
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleClose();
             }}
-            className={styles.minimizedBarButton}
+            className={styles.closeButton}
           >
             ✕
           </button>
+          <span className={styles.chatLabel} onClick={handleRestore}>
+            💬
+          </span>
         </div>
       )}
 
       {isOpen && (isFullView || !isMinimized) && (
         <div
           ref={modalRef}
-          className={isFullView ? "" : styles.modalWrapper}
+          className={isFullView ? styles.fullScreenModal : styles.modalWrapper}
         >
+
           {/* Top resize handle */}
           {!isFullView && (
             <div

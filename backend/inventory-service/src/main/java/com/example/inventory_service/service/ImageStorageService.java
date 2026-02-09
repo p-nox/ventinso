@@ -6,8 +6,6 @@ import java.util.List;
 public interface ImageStorageService {
 
 
-    void setThumbnail(Long itemId, String filename);
-
     byte[] loadImage(Long itemId, String filename);
 
     void deleteImage(Long itemId, String filename);

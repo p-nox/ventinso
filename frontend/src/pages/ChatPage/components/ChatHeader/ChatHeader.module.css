@@ -4,11 +4,15 @@
   justify-content: space-between;
   padding: 0 8px;
   gap: 2%;
-  height: 50px;
+  height: 53px;
   font-weight: bold;
-  background-color: var(--footer-background-color);
+  background-color: var(--background-color);
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-color);
+  color: var(--text-link-color);
+}
+
+.chatHeader:hover {
+  color: var(--text-link-color-hover);
 }
 
 .chatInfo {
@@ -21,7 +25,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto; 
 }
+
 
 .chatControls button {
   background: transparent;
@@ -32,3 +38,5 @@
   justify-content: center;
   color: var(--text-color);
 }
+
+

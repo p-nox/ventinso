@@ -34,21 +34,6 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     @Value("${app.upload.dir}")
     private String uploadDir;
 
-
-    @Transactional
-    public void setThumbnail(Long itemId, String filename) {
-        itemImageRepository.clearThumbnailForItem(itemId);
-        ItemImage image = itemImageRepository.findByItemIdAndFilename(itemId, filename)
-                .orElseThrow(() -> new RuntimeException("Image not found"));
-
-        if (!image.getItemId().equals(itemId)) {
-            throw new RuntimeException("Image does not belong to the specified item");
-        }
-
-        image.setThumbnail(true);
-        itemImageRepository.save(image);
-    }
-
     @Override
     public byte[] loadImage(Long itemId, String filename) {
         ItemImage itemImage = itemImageRepository.findByItemIdAndFilename(itemId, filename)
@@ -65,6 +50,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     @Override
     @Transactional
     public void deleteImage(Long itemId, String filename) {
+        log.info("Deleting images for itemId={} at path={}", itemId);
         ItemImage image = itemImageRepository
                 .findByItemIdAndFilename(itemId, filename)
                 .orElseThrow(() ->
@@ -83,7 +69,6 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
 
     @Override
     public void saveImagesForItem(Long itemId, List<MultipartFile> files, String thumbnailFilename) {
-
 
         if (files == null || files.isEmpty()) {
             List<ItemImage> existingImages = itemImageRepository.findAllByItemId(itemId);
@@ -109,6 +94,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
                 Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
 
                 boolean isThumbnail = originalFilename.equals(thumbnailFilename);
+                if (isThumbnail) itemImageRepository.clearThumbnailForItem(itemId);
 
                 ItemImage itemImage = ItemImage.builder()
                         .itemId(itemId)
@@ -153,7 +139,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     @Override
     public List<String> getImageUrlsForItem(Long itemId) {
         return itemImageRepository.findAllByItemId(itemId).stream()
-                .map(image -> "/api/images/" + image.getItemId() + "/" + image.getFilename())
+                .map(image -> image.getItemId() + "/" + image.getFilename())
                 .toList();
     }
 
@@ -161,7 +147,7 @@ public class ΙmageStorageServiceImpl implements ImageStorageService {
     public String getThumbnailForItem(Long itemId) {
         ItemImage thumbnail = itemImageRepository.findByItemIdAndThumbnailTrue(itemId)
                 .orElseThrow(() -> new RuntimeException("No thumbnail found"));
-        return "/api/images/" + itemId + "/" + thumbnail.getFilename();
+        return itemId + "/" + thumbnail.getFilename();
     }
 
 

@@ -6,17 +6,20 @@ export default function ConditionTag({
   value,
   fontSize = "0.75rem",
   margin = "0px 0px 0px 0px",
-  type = "tag",
-  formatFn = formatText, 
+  type = "tag", 
+  className = "",  
 }) {
   if (!value) return null;
 
   const style = { fontSize, margin };
-  const className = type === "badge" ? getBadgeStyle(value) : getTagStyle(value);
+  const tagStyle = type === "badge" ? getBadgeStyle(value) : getTagStyle(value);
+
+
+  const combinedClassName = `${styles.tag} ${tagStyle} ${className}`.trim();
 
   return (
-    <span className={`${styles.tag} ${className}`} style={style}>
-      {formatFn(value)}
+    <span className={combinedClassName} style={style}>
+      {formatText(value)}
     </span>
   );
 }

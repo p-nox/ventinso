@@ -1,10 +1,10 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1rem;
   align-items: center;
   width: 100%;
   align-self: center;
-  padding: 20px 10px;
-  margin: 1% 0; 
+  margin-bottom: 1rem;
+  padding: 0 10px;
 }

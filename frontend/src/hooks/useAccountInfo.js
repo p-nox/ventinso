@@ -19,11 +19,13 @@ export function useAccountInfo(userId) {
 
   const [editField, setEditField] = useState(null);
   const [tempValue, setTempValue] = useState("");
+  const [loading, setLoading] = useState(true)
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (!userId) return;
     const fetchUserProfile = async () => {
+      setLoading(true);
       try {
         const response = await getUserProfile(userId);
         setUser({
@@ -40,6 +42,8 @@ export function useAccountInfo(userId) {
         });
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchUserProfile();
@@ -100,6 +104,7 @@ export function useAccountInfo(userId) {
     handleEdit,
     handleCancel,
     handleSubmit,
-    updateAvatar
+    updateAvatar,
+    loading
   };
 }

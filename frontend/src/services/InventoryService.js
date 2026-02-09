@@ -6,13 +6,19 @@ const { handle } = createApiClient(API_URLS.INVENTORY);
 export const updateItemPreference = (itemId, preference, value) =>
   handle(api => api.patch(`/${itemId}/preferences/${preference}`, {}, { params: { value } }));
 
-export const getItem = (itemId) => {
+
+export const getItem = (itemId, userId) => {
   const { handle } = createApiClient(API_URLS.AGGREGATED);
-  return handle(api => api.get(`/item/${itemId}`));
+
+  return handle(api =>
+    api.get(`/item/${itemId}`, {
+      params: { userId }
+    })
+  );
 };
 
-export const getUserItems = (userId) =>
-  handle(api => api.get(`/user/${userId}`));
+
+
 
 export const updateItemStatus = (itemId, itemStatus) =>
   handle(api => api.patch(`/${itemId}/status/${itemStatus}`));
@@ -23,13 +29,14 @@ export const deleteItem = (itemId) =>
 export const getCategories = () =>
   handle(api => api.get(`/categories`));
 
+export const getCategoryForItem = (itemId) =>
+  handle(api => api.get(`/${itemId}/category`));
+
+
 export const deleteImage = (itemId, filename) => {
   const { handle } = createApiClient(API_URLS.IMAGE);
-  const url = `/${itemId}/${filename}`;
-  console.log("DELETE request URL:", `${API_URLS.IMAGE}${url}`);
-  return handle(api => api.delete(url));
+  return handle(api => api.delete(API_URLS.IMAGE_FILE(`${itemId}/${filename}`)));
 };
-
 
 export const createItem = (itemObj, files = []) => {
   const formData = buildFormData(itemObj, files);

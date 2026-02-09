@@ -1,9 +1,11 @@
 package com.example.user_service.service.implementation;
 
 import com.example.auth_service.event.NewUserEvent;
-import com.example.user_service.dto.*;
+import com.example.user_service.dto.request.UpdateProfileRequest;
+import com.example.user_service.dto.response.*;
 import com.example.user_service.entity.Favorite;
 import com.example.user_service.entity.User;
+import com.example.user_service.enums.UserStatus;
 import com.example.user_service.event.UserWatchersUpdateEvent;
 import com.example.user_service.exception.ResourceNotFoundException;
 import com.example.user_service.repository.FavoriteRepository;
@@ -13,8 +15,6 @@ import com.example.user_service.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -46,6 +46,18 @@ public class UserServiceImpl implements UserService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final Mapper mapper;
 
+
+    @Override
+    public UserBootstrapResponse getUserBootstrap(Long userId) {
+        User user = findUserById(userId);
+        List<FavoriteResponse> watchlist = getUsersFavorites(user.getId());
+        return UserBootstrapResponse.builder()
+                .username(user.getUsername())
+                .avatarUrl(user.getAvatarUrl())
+                .watchlist(watchlist)
+                .build();
+
+    }
 
     @Override
     public UserResponse getUserById(Long userId) {
@@ -133,7 +145,7 @@ public class UserServiceImpl implements UserService {
                 .name(newUserEvent.getName())
                 .username(newUserEvent.getUsername())
                 .email(newUserEvent.getEmail())
-                .status(newUserEvent.getStatus())
+                .status(UserStatus.valueOf(newUserEvent.getStatus()))
                 .registeredAt(newUserEvent.getRegisteredAt())
                 .build();
         userRepository.save(newUserProfile);

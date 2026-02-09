@@ -3,6 +3,7 @@ package com.example.inventory_preview_service.listener;
 import com.example.inventory_preview_service.service.PreviewService;
 import com.example.inventory_service.event.ItemCreateUpdateEvent;
 import com.example.inventory_preview_service.event.UserLookUpEvent;
+import com.example.inventory_service.event.WatcherUpdateEvent;
 import com.example.user_service.event.UserRatingUpdateEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,11 @@ public class PreviewEventListener {
     @KafkaListener(topics = "inventory.item.status.updated")
     public void onItemStatusUpdated(ItemCreateUpdateEvent event) {
         previewService.updateItemStatus(event);
+    }
+
+    @KafkaListener(topics = {"inventory.item.watchers.updated"})
+    public void onItemWatchersUpdated(WatcherUpdateEvent event) {
+        previewService.updateItemWatchers(event);
     }
 
     @KafkaListener(topics = "inventory.item.preference.updated")

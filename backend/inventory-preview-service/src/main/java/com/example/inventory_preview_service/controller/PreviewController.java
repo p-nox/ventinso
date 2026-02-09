@@ -64,9 +64,6 @@ public class PreviewController {
             @Parameter(description = "Maximum price") @RequestParam(required = false) BigDecimal maxPrice,
             @Parameter(description = "Max number of results to return") @RequestParam(defaultValue = "20") int limit) {
 
-        log.info("Fetching items with filters: q='{}', category='{}', type='{}', condition='{}', minPrice={}, maxPrice={}, limit={}",
-                q, category, type, condition, minPrice, maxPrice, limit);
-
         List<ItemCardResponse> items = previewService.getItemsByFilters(
                 q, category, type, condition, minPrice, maxPrice, limit);
         return ResponseEntity.ok(items);

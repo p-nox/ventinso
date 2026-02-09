@@ -18,6 +18,7 @@ public class ItemCardResponse {
     private String type;
     private String status;
     private Long userId;
+    private Long watchers;
     private String username;
     private Double avgOverallRating;
     private Integer totalRatings;

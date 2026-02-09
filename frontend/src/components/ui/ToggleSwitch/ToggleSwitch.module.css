@@ -56,7 +56,7 @@
 }
 
 .switch input:checked + .slider {
-  background-color: var(--header-color);
+  background-color: var(--toogle-color);
 }
 
 .switch input:checked + .slider::before {

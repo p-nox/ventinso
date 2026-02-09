@@ -1,26 +1,21 @@
 import React from "react";
 import styles from "./Layout.module.css";
-import { Register } from "@components/Auth";
-import { Header, Footer, Breadcrumbs, ScrollToTopButton } from '@components/Layout';
+import { Header, Footer, ScrollToTopButton } from '@components/Layout';
 import { ChatUIProvider } from '@context/ChatUIProvider';
 import { ChatPage } from '@pages';
 
-export default function Layout({ children, showRegister, closeRegister, setShowSearch, openRegister }) {
+export default function Layout({ children, openLogin  }) {
   return (
-    <>
-      <ChatUIProvider>
-        <div className={styles.wrapper}>
-          <Header setShowSearch={setShowSearch} openRegister={openRegister} />
-          <Breadcrumbs />
-          {showRegister && <Register onClose={closeRegister} />}
-          <main className={styles.mainContent}>
-            {children}
-          </main>
-          <ScrollToTopButton />
-        </div>
-        <Footer />
-        <ChatPage />
-      </ChatUIProvider>
-    </>
+    <ChatUIProvider>
+      <div className={styles.wrapper}>
+        <main className={styles.mainContent}>
+          <Header openLogin={openLogin} />
+          {children}
+        </main>
+        <ScrollToTopButton />
+      </div>
+      <Footer />
+      <ChatPage />
+    </ChatUIProvider>
   );
 }

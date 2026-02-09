@@ -1,10 +1,11 @@
 import React from "react";
-import { API_BASE_URL } from "@config/Config"
+import { API_URLS } from "@config/Config"
 
 export default function Avatar({ src }) {
+  //console.log("Avatar src:", src)
   return (
     <img
-      src={`${API_BASE_URL}${src}`}
+      src={API_URLS.AVATAR_FILE(src)}
       alt="avatar"
       style={{
         width: "35px",

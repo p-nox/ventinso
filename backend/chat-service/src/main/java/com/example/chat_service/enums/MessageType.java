@@ -9,5 +9,6 @@ public enum MessageType {
     OFFER_CLOSED,
     OFFER_ACCEPTED,
     COUNTER_OFFER,
-    OFFER_REJECTED
+    OFFER_REJECTED,
+    COUNTER_CLOSED
 }

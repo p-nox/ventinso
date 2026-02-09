@@ -36,9 +36,12 @@ export default function ItemCarousel({ items, username }) {
   }
   return (
     <div>
+
       <SectionTitle text={`More items from ${username}`} />
+
       <div className={styles.carouselWrapper}>
         <ScrollButton direction="left" onClick={() => scroll("left")} show={canScroll.left} />
+
         <div className={styles.carousel} ref={scrollRef} onScroll={updateScrollButtons}>
           {items.map(item => (
             <div key={item.itemId} className={styles.cardWrapper}>
@@ -46,7 +49,9 @@ export default function ItemCarousel({ items, username }) {
             </div>
           ))}
         </div>
+
         <ScrollButton direction="right" onClick={() => scroll("right")} show={canScroll.right} />
+          
       </div>
 
     </div>

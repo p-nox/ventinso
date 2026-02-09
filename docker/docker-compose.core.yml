@@ -1,0 +1,373 @@
+networks:
+  ventinso-network:
+    external: true
+
+volumes:
+  ventinso-db-data:
+  ventinso-mongo-data:
+  ventinso-kafka-logs:
+
+
+services:
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    networks:
+      - ventinso-network
+    ports:
+      - "5173:80"
+    environment:
+      VITE_API_URL: "http://localhost:8083/api"
+    depends_on:
+      - gateway-service
+    labels:
+      project: ventinso
+      category: frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+
+  eureka-discovery:
+    image: ventinso/discovery-service:latest
+    container_name: eureka-discovery
+    networks:
+      - ventinso-network
+    ports:
+      - "8761:8761"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 512M
+
+  gateway-service:
+    image: ventinso/gateway-service:latest
+    container_name: gateway-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      JWT_SECRET: "${JWT_SECRET}"
+    depends_on:
+      - eureka-discovery
+    ports:
+      - "8083:8083"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 512M
+
+  auth-service:
+    image: ventinso/auth-service:latest
+    container_name: auth-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/auth"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/auth"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+      JWT_SECRET: "${JWT_SECRET}"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8085:8085"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  user-service:
+    image: ventinso/user-service:latest
+    container_name: user-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/users"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/users"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+      UPLOAD_DIR: "/uploads/users/avatars"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8089:8089"
+    volumes:
+      - "${UPLOAD_USER_DIR}:/uploads/users/avatars"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  chat-service:
+    image: ventinso/chat-service:latest
+    container_name: chat-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/chats"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/chats"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      APP_UPLOAD_DIR: "/uploads/chat/media"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8090:8090"
+    volumes:
+      - "${UPLOAD_CHAT_DIR}:/uploads/chat/media"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 1024M 
+
+  inventory-service:
+    image: ventinso/inventory-service:latest
+    container_name: inventory-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/inventory"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/inventory"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+      APP_UPLOAD_DIR: "/uploads/inventory/images"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8082:8082"
+    volumes:
+      - "${UPLOAD_ITEM_DIR}:/uploads/inventory/images"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  preview-inventory-service:
+    image: ventinso/preview-inventory-service:latest
+    container_name: preview-inventory-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATA_MONGODB_URI: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:27017/inventory_preview?authSource=admin"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+      NOTIFICATION_BASE_URL: "http://gateway-service:8083/api"
+    depends_on:
+      - eureka-discovery
+      - mongo
+      - kafka
+    ports:
+      - "8079:8079"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  order-service:
+    image: ventinso/order-service:latest
+    container_name: order-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/orders"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/orders"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8084:8084"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  payment-service:
+    image: ventinso/payment-service:latest
+    container_name: payment-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/payments"
+      SPRING_DATASOURCE_USERNAME: "${MYSQL_USER}"
+      SPRING_DATASOURCE_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_FLYWAY_URL: "jdbc:mysql://mysql:3306/payments"
+      SPRING_FLYWAY_USER: "${MYSQL_USER}"
+      SPRING_FLYWAY_PASSWORD: "${MYSQL_PASSWORD}"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+      STRIPE_API_KEY: "${STRIPE_API_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+    depends_on:
+      - eureka-discovery
+      - mysql
+      - kafka
+    ports:
+      - "8086:8086"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  notification-service:
+    image: ventinso/notification-service:latest
+    container_name: notification-service
+    networks:
+      - ventinso-network
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eureka-discovery:8761/eureka/"
+      SPRING_DATA_MONGODB_URI: "mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:27017/notifications?authSource=admin"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-broker:9092"
+    depends_on:
+      - eureka-discovery
+      - mongo
+      - kafka
+    ports:
+      - "8087:8087"
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  mysql:
+    image: mysql:8.0.33
+    container_name: mysql-db
+    networks:
+      - ventinso-network
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - ventinso-db-data:/var/lib/mysql
+      - ../config/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    labels:
+      project: ventinso
+      category: database
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  mongo:
+    image: mongo:6
+    container_name: mongo-db
+    networks:
+      - ventinso-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
+    volumes:
+      - ventinso-mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    labels:
+      project: ventinso
+      category: database
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  kafka:
+    image: apache/kafka:4.2.0-rc1
+    container_name: kafka-broker
+    networks:
+      - ventinso-network
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-broker:9092,EXTERNAL://localhost:9094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-broker:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+    ports:
+      - "9094:9094" 
+    labels:
+      project: ventinso
+      category: backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G

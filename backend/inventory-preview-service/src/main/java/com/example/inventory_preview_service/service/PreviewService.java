@@ -3,6 +3,7 @@ package com.example.inventory_preview_service.service;
 import com.example.inventory_preview_service.dto.ItemCardResponse;
 import com.example.inventory_service.event.ItemCreateUpdateEvent;
 import com.example.inventory_preview_service.event.UserLookUpEvent;
+import com.example.inventory_service.event.WatcherUpdateEvent;
 import com.example.user_service.event.UserRatingUpdateEvent;
 
 import java.math.BigDecimal;
@@ -32,6 +33,8 @@ public interface PreviewService {
     void updateItemFromUserEvent(UserLookUpEvent event);
 
     void updateItemStatus(ItemCreateUpdateEvent event);
+
+    void updateItemWatchers(WatcherUpdateEvent event);
 
     List<ItemCardResponse> getItemsByUserId(Long userId, Boolean includeHidden );
 

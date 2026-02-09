@@ -19,4 +19,5 @@ public class PriceUpdateEvent {
     private String title;
     private String action;
     private List<Long> watchers;
+    private String thumbnail;
 }

@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styles from './FiltersPanel.module.css';
 import { DropdownArrow } from '@assets/icons';
 import PriceBtn from '@components/Buttons/PriceBtn/PriceBtn';
-import Button from '@components/Buttons/Button/Button';
 import PriceSlider from '../PriceSlider/PriceSlider';
 import { getCategories } from '@services/InventoryService';
 import { formatText } from '@utils/utils';
-import { Paths } from '@config/Config';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { ChevronDown } from "lucide-react";
+
 
 const types = ["BUY", "SELL", "AUCTION"];
 const conditions = ["NEW", "LIKE_NEW", "USED"];
@@ -56,7 +56,7 @@ export default function FiltersPanel({ filters, onFilterChange }) {
     });
   }, []);
 
-  // --- Expand/collapse sections ---
+
   const handleToggle = (section) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };
@@ -110,7 +110,7 @@ export default function FiltersPanel({ filters, onFilterChange }) {
 
   return (
     <div className={styles.wrapper}>
-      <Button label="List an item" variant="listItem" to={Paths.ADD_ITEM()} />
+
       <FilterSection
         title="Price"
         show={expanded.price}
@@ -138,22 +138,7 @@ export default function FiltersPanel({ filters, onFilterChange }) {
           </div>
         </div>
       </FilterSection>
-      <FilterSection
-        title="Category"
-        items={categories.map(c => c.name)}
-        selectedItem={filters.category}
-        show={expanded.category}
-        onToggle={() => handleToggle('category')}
-        onItemClick={val => updateFilters('category', val)}
-      />
-      <FilterSection
-        title="Type"
-        items={types}
-        selectedItem={filters.type}
-        show={expanded.type}
-        onToggle={() => handleToggle('type')}
-        onItemClick={val => updateFilters('type', val)}
-      />
+
       <FilterSection
         title="Condition"
         items={conditions}
@@ -162,40 +147,58 @@ export default function FiltersPanel({ filters, onFilterChange }) {
         onToggle={() => handleToggle('condition')}
         onItemClick={val => updateFilters('condition', val)}
       />
+
+      <FilterSection
+        title="Category"
+        items={categories.map(c => c.name)}
+        selectedItem={filters.category}
+        show={expanded.category}
+        onToggle={() => handleToggle('category')}
+        onItemClick={val => updateFilters('category', val)}
+      />
     </div>
   );
 }
 
-function FilterSection({ title, items = [], selectedItem, show, onToggle, onItemClick, children }) {
+
+
+function FilterSection({
+  title,
+  items = [],
+  selectedItem,
+  show,
+  onToggle,
+  onItemClick,
+  children
+}) {
   return (
-    <div className={styles.filterSection}>
-      <div className={styles.sectionHeader} onClick={onToggle}>
-        {title}
-        <DropdownArrow
-          width={24}
-          height={24}
-          style={{
-            transform: show ? "rotate(180deg)" : "rotate(0deg)",
-            transition: "transform 0.3s"
-          }}
-        />
-      </div>
+    <div className={`${styles.filterSection} ${show ? styles.open : ""}`}>
+
+      <button type="button" className={styles.sectionHeader} onClick={onToggle}>
+        <span>{title}</span>
+        <ChevronDown className={styles.arrow} size={18} />
+      </button>
+
       {show && (
-        <div className={styles.container}>
-          {items.length > 0
-            ? items.map(item => (
-              <div
-                key={item}
-                className={`${styles.categoryItem} ${selectedItem === item ? styles.selected : ''}`}
-                onClick={() => onItemClick(item)}
-              >
-                {formatText(item)}
-              </div>
-            ))
-            : children
-          }
+        <div className={`${styles.container} ${show ? styles.show : ""}`}>
+          <div className={styles.inner}>
+            {items.length > 0
+              ? items.map(item => (
+                <div
+                  key={item}
+                  className={`${styles.categoryItem} ${selectedItem === item ? styles.selected : ''}`}
+                  onClick={() => onItemClick(item)}
+                >
+                  {formatText(item)}
+                </div>
+              ))
+              : children
+            }
+          </div>
         </div>
       )}
+
     </div>
   );
 }
+

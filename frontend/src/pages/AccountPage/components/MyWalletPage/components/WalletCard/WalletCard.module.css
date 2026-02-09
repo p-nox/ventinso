@@ -1,0 +1,46 @@
+.wallet {
+  text-align: center;
+  color: var(--text-color);
+  width: 100%;
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-weight: bolder;
+  font-size: 1rem;
+  padding: 2px;
+}
+
+.balanceText,
+.amount {
+  font-size: 2.0rem;
+}
+
+.amount {
+  color: var(--toogle-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.balance svg {
+  vertical-align: middle;
+  transform: translateY(1px);
+}
+
+.btnGroup {
+  display: flex;
+  gap: 10%;
+  padding: 0px 10%;
+  margin: 2rem 0;
+  justify-content: center;
+}
+
+.icon {
+  margin-left: 4px;
+  stroke:var(--text-color);
+  stroke-width: 2.5;
+}

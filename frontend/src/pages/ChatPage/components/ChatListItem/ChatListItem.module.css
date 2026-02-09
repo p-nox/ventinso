@@ -27,7 +27,6 @@
   flex-shrink: 0;
   border-radius: 50%;
   object-fit: cover;
-  outline: 2px solid var(--accent-color);
 }
 
 .chatInfo {
@@ -39,13 +38,14 @@
 
 .chatName {
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-color);
 }
 
 .lastMessage {
-  font-size: 0.85rem;
-  color: var(--text-label-color);
+  font-size: 0.9rem;
+  color: var(--text-color-muted);
+  margin-left: 0.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -56,5 +56,5 @@
   top: 4px;
   right: 4px;
   font-size: 0.7rem;
-  color: var(--text-label-color);
+  color: var(--text-color-muted);
 }

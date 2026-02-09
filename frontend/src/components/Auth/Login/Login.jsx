@@ -2,90 +2,118 @@ import { useState } from "react";
 import styles from "./Login.module.css";
 import { loginAPICall } from "@services/AuthService";
 import { useAuth } from "@context/AuthContext";
-import { AccountIcon, PasswordIcon } from "@assets/icons";
-import TabGroup from "@components/Buttons/TabGroup/TabGroup";
+import { Eye, EyeOff, X } from "lucide-react";
 
-export default function Login({ openRegister }) {
+export default function Login({ closeLogin, openRegister }) {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
-
-  const buttons = [
-    { key: 'login', label: 'LOG IN', onClick: null, type: 'submit' },
-    { key: 'signup', label: 'SIGN UP', onClick: openRegister, type: 'button' }
-  ];
-
 
   function handleLogin(e) {
     e.preventDefault();
-    console.log("Login form submitted:", { usernameOrEmail, password });
+    if (!usernameOrEmail || !password) {
+      alert("Please enter your email/username and password");
+      return;
+    }
 
-    console.log("Calling loginAPICall...");
     loginAPICall(usernameOrEmail, password)
       .then((response) => {
-        console.log("API response:", response);
         const token = 'Bearer ' + response.token;
-        console.log("Generated token:", token);
-
-        login(token, response.watchlist);
-        console.log("Login function called with token, username/email and watchlist");
+        login(token, response.userData);
+        closeLogin();
       })
       .catch(error => {
         console.error("Login failed:", error);
+        alert("Login failed. Check your credentials.");
       });
-    console.log("handleLogin finished");
   }
 
   return (
-    <form className={styles.loginForm} onSubmit={handleLogin}>
-      <LoginInput
-        value={usernameOrEmail}
-        onChange={(e) => setUsernameOrEmail(e.target.value)}
-        placeholder="Username or Email"
-        Icon={AccountIcon}
-        iconProps={{ width: 22, height: 22, stroke: "rgba(187, 202, 214, 1)" }}
-      />
-      <LoginInput
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        type="password"
-        Icon={PasswordIcon}
-        iconProps={{ width: 22, height: 22, fill: "rgba(187, 202, 214, 1)" }}
-      />
-      <TabGroup
-        tabs={buttons}
-        activeTab={null}
-        buttonClassName={styles.button}
-        containerClassName={styles.inputGroup + ' ' + styles.gap}
-      />
-    </form>
-  );
-}
+    <div className={styles.overlay} onClick={closeLogin}>
 
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
 
-function LoginInput({ value, onChange, placeholder, type = "text", Icon, iconProps = {} }) {
-  return (
-    <div className={styles.inputGroup}>
-      {Icon && (
-        <div className={styles.iconContainer}>
-          <Icon {...iconProps} />
+        <button onClick={closeLogin} className={styles.closeButton} aria-label="Close">
+          <X className={styles.closeIcon} />
+        </button>
+
+        <div className={styles.header}>
+          <h2 className={styles.title}>Log In</h2>
         </div>
-      )}
-      <input
-        className={styles.loginInput}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        required
-        aria-label={placeholder}
-      />
+
+        <div className={styles.content}>
+
+          <form onSubmit={handleLogin}>
+
+            <input
+              type="text"
+              placeholder="Email or username"
+              className={styles.input}
+              value={usernameOrEmail}
+              onChange={(e) => setUsernameOrEmail(e.target.value)}
+            />
+
+            <div className={styles.passwordWrapper}>
+
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className={styles.input}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className={styles.togglePassword}
+                onClick={() => setShowPassword(prev => !prev)}
+              >
+                {showPassword
+                  ? <Eye className={styles.icon} /> 
+                  : <EyeOff className={styles.icon} />}
+              </button>
+
+            </div>
+
+            <div className={styles.footerText}>
+              <a href="#">Forgot password?</a>
+            </div>
+
+            <div className={styles.signupText}>
+              Don’t have an account?{" "}
+              <button
+                type="button"
+                className={styles.signupLink}
+                onClick={() => {
+                  closeLogin();
+                  openRegister();
+                }}
+              >
+                Sign up
+              </button>
+            </div>
+
+            <button
+              className={`${styles.loginbtn} ${(!usernameOrEmail || !password) ? styles.disabled : ''}`}
+              type="submit"
+              disabled={!usernameOrEmail || !password}
+            >
+              Log In
+            </button>
+          </form>
+
+          <div className={styles.divider}>
+            <span className={styles.dividerText}>OR</span>
+          </div>
+
+          <button className={styles.googleButton}>Continue with Google</button>
+
+          <button className={styles.facebookButton}>Continue with Facebook</button>
+
+        </div>
+
+      </div>
+
     </div>
   );
 }
-
-
-
-
-

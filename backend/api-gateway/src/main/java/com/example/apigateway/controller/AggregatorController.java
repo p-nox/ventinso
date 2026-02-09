@@ -2,6 +2,8 @@ package com.example.apigateway.controller;
 
 import com.example.apigateway.configuration.ApiConfig;
 import com.example.apigateway.dto.*;
+import com.example.apigateway.dto.response.*;
+import com.example.apigateway.dto.serviceResponse.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +12,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +27,6 @@ public class AggregatorController {
 
     private final WebClient inventoryClient;
     private final WebClient userClient;
-    private final WebClient previewClient;
     private final WebClient authClient;
     private final WebClient orderClient;
     private final WebClient chatClient;
@@ -31,61 +34,71 @@ public class AggregatorController {
     public AggregatorController(WebClient.Builder webClientBuilder) {
         this.inventoryClient = webClientBuilder.baseUrl("http://" + ApiConfig.INVENTORY_SERVICE).build();
         this.userClient = webClientBuilder.baseUrl("http://" + ApiConfig.USER_SERVICE).build();
-        this.previewClient = webClientBuilder.baseUrl("http://" + ApiConfig.PREVIEW_SERVICE).build();
         this.authClient = webClientBuilder.baseUrl("http://" + ApiConfig.AUTH_SERVICE).build();
         this.orderClient = webClientBuilder.baseUrl("http://" + ApiConfig.ORDER_SERVICE).build();
         this.chatClient = webClientBuilder.baseUrl("http://" + ApiConfig.CHAT_SERVICE).build();
     }
 
     @GetMapping("/item/{itemId}")
-    @Operation(summary = "Get item with user info", description = "Retrieve an item along with user info and user's other items")
     public Mono<ItemPageResponse> getItemWithUserInfo(
-            @Parameter(description = "ID of the item") @PathVariable String itemId) {
-        log.info("Entered /api/aggregated/item/{}", itemId);
+            @Parameter(description = "ID of the item")
+            @PathVariable String itemId,
+            @Parameter(description = "ID of the requesting user (optional)")
+            @RequestParam(required = false) Long userId) {
 
-        return inventoryClient.get()
-                .uri(ApiConfig.INVENTORY_SERVICE_URL + "/{itemId}", itemId)
+        Mono<InventoryServiceResponse> itemMono = inventoryClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(ApiConfig.INVENTORY_SERVICE_URL + "/{itemId}")
+                        .queryParamIfPresent("userId", Optional.ofNullable(userId))
+                        .queryParam("fetchOtherActiveItems", true)
+                        .build(itemId))
                 .retrieve()
                 .bodyToMono(InventoryServiceResponse.class)
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(e -> {
-                    log.error("Inventory service failed for itemId={}", itemId, e);
+                    log.error("Inventory failed {}", itemId, e);
                     return Mono.empty();
-                })
-                .flatMap(item -> {
-                    Mono<UserServiceResponse> userMono = userClient.get()
-                            .uri(ApiConfig.USER_SERVICE_URL + "/{id}/summary", item.getUserId())
-                            .retrieve()
-                            .bodyToMono(UserServiceResponse.class)
-                            .timeout(Duration.ofSeconds(3))
-                            .onErrorResume(e -> {
-                                log.error("User service failed for userId={}", item.getUserId(), e);
-                                return Mono.just(new UserServiceResponse());
-                            });
-
-                    Mono<List<PreviewServiceResponse>> itemsMono = previewClient.get()
-                            .uri("/api/preview/user/{userId}", item.getUserId())
-                            .retrieve()
-                            .bodyToMono(new ParameterizedTypeReference<List<PreviewServiceResponse>>() {})
-                            .timeout(Duration.ofSeconds(3))
-                            .onErrorResume(e -> {
-                                log.error("Preview service failed for userId={}", item.getUserId(), e);
-                                return Mono.just(List.of());
-                            });
-
-                    return Mono.zip(userMono, itemsMono)
-                            .map(tuple -> buildItemPageResponse(item, tuple.getT1(), tuple.getT2()));
                 });
+
+
+        return itemMono.flatMap(item -> {
+            Long ownerId = item.getUserId(); // ownerId from Inventory response
+
+            Mono<UserServiceResponse> userMono = userClient.get()
+                    .uri(ApiConfig.USER_SERVICE_URL + "/{ownerId}/summary", ownerId)
+                    .retrieve()
+                    .bodyToMono(UserServiceResponse.class)
+                    .timeout(Duration.ofSeconds(3))
+                    .onErrorResume(e -> {
+                        log.error("User failed {}", ownerId, e);
+                        return Mono.just(new UserServiceResponse());
+                    });
+
+            return Mono.zip(Mono.just(item), userMono)
+                    .map(tuple -> buildItemPageResponse(tuple.getT1(), tuple.getT2()));
+        });
     }
 
+
+
+
+
+
+    // get Order
+
+
+
+
+   // θα φυγει order
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get aggregated user profile", description = "Retrieve user profile with items and ratings")
     public Mono<UserProfileResponse> getUserProfile(
             @Parameter(description = "ID of the user") @PathVariable String userId,
-            @Parameter(description = "Include hidden items") @RequestParam(defaultValue = "false") Boolean includeHidden) {
+            @Parameter(description = "Include hidden items") @RequestParam(defaultValue = "false") boolean includeHiddenItems) {
 
+        // Fetch user info
         Mono<UserServiceResponse> userMono = userClient.get()
-                .uri(ApiConfig.USER_SERVICE_URL + "/{id}/summary", userId)
+                .uri(ApiConfig.USER_SERVICE_URL + "/{userId}/summary", userId)
                 .retrieve()
                 .bodyToMono(UserServiceResponse.class)
                 .timeout(Duration.ofSeconds(3))
@@ -94,24 +107,25 @@ public class AggregatorController {
                     return Mono.just(new UserServiceResponse());
                 });
 
-        Mono<List<PreviewServiceResponse>> itemsMono = previewClient.get()
+        // Fetch items from inventory service
+        Mono<List<InventoryServiceResponse.ItemSummaryResponse>> itemsMono = inventoryClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(ApiConfig.PREVIEW_SERVICE_URL + "/user/{userId}")
-                        .queryParam("includeHidden", includeHidden)
+                        .path(ApiConfig.INVENTORY_SERVICE_URL + "/{userId}/items")
+                        .queryParam("includeHiddenItems", includeHiddenItems)
                         .build(userId))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<PreviewServiceResponse>>() {})
-                .timeout(Duration.ofSeconds(3))
+                .bodyToMono(new ParameterizedTypeReference<List<InventoryServiceResponse.ItemSummaryResponse>>() {})
+                .timeout(Duration.ofSeconds(5))
                 .onErrorResume(e -> {
-                    log.error("Preview service failed for userId={}", userId, e);
+                    log.error("Inventory service failed for userId={}", userId, e);
                     return Mono.just(List.of());
                 });
 
         return Mono.zip(userMono, itemsMono)
                 .flatMap(tuple -> {
                     UserServiceResponse user = tuple.getT1();
-                    List<PreviewServiceResponse> items = tuple.getT2();
-                    List<RatingResponse> ratings = user.getRatings();
+                    List<InventoryServiceResponse.ItemSummaryResponse> items = tuple.getT2();
+                    List<UserServiceResponse.RatingResponse> ratings = user.getRatings();
 
                     if (ratings == null || ratings.isEmpty()) {
                         return Mono.just(buildUserProfileResponse(user, items));
@@ -142,6 +156,7 @@ public class AggregatorController {
                 });
     }
 
+
     @PostMapping("/me")
     @Operation(summary = "Get my profile", description = "Authenticate and retrieve aggregated data for the logged-in user")
     public Mono<LoginResponse> bootstrapLogin(
@@ -160,21 +175,21 @@ public class AggregatorController {
                 });
 
         return authUserMono.flatMap(authUser -> {
-            Mono<List<UserServiceWatchlistResponse>> watchlistMono = userClient.get()
-                    .uri(ApiConfig.USER_SERVICE_URL + "/{userId}/watchlist", authUser.getUserId())
+            Mono<UserServiceBootstrapResponse> userMono = userClient.get()
+                    .uri(ApiConfig.USER_SERVICE_URL + "/{userId}/bootstrap", authUser.getUserId())
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<List<UserServiceWatchlistResponse>>() {})
+                    .bodyToMono(UserServiceBootstrapResponse.class)
                     .timeout(Duration.ofSeconds(3))
                     .onErrorResume(error -> {
-                        log.error("Watchlist fetch failed for userId={}", authUser.getUserId(), error);
-                        return Mono.just(List.of());
+                        log.error("User fetch failed for userId={}", authUser.getUserId(), error);
+                        return Mono.just(UserServiceBootstrapResponse.builder().build());
                     });
 
-            return watchlistMono.map(watchlist -> {
+            return userMono.map(userData -> {
                 LoginResponse response = new LoginResponse();
                 response.setToken(authUser.getToken());
                 response.setUserId(authUser.getUserId());
-                response.setWatchlist(watchlist);
+                response.setUserData(userData);
                 return response;
             });
         });
@@ -187,107 +202,100 @@ public class AggregatorController {
         return chatClient.get()
                 .uri(ApiConfig.CHAT_SERVICE_URL + "/user-chats/{userId}", userId)
                 .retrieve()
-                .bodyToFlux(ChatSummaryResponse.class)
+                .bodyToFlux(ChatServiceResponse.class)
                 .flatMap(chat -> {
-                    Long otherUserId = chat.senderId().equals(userId) ? chat.receiverId() : chat.senderId();
+                    Long otherUserId = chat.senderId().equals(userId)
+                            ? chat.receiverId()
+                            : chat.senderId();
 
-                    Mono<UserServiceProfileResponse> userMono = userClient.get()
+                    Mono<UserServiceResponse> userMono = userClient.get()
                             .uri(uriBuilder -> uriBuilder
-                                    .path(ApiConfig.USER_SERVICE_URL + "/{userId}/profile")
+                                    .path(ApiConfig.USER_SERVICE_URL + "/{userId}/summary")
                                     .build(otherUserId))
                             .retrieve()
-                            .bodyToMono(UserServiceProfileResponse.class)
-                            .onErrorResume(e -> Mono.just(new UserServiceProfileResponse()));
+                            .bodyToMono(UserServiceResponse.class)
+                            .onErrorResume(e -> Mono.just(new UserServiceResponse()));
 
                     Mono<InventoryServiceResponse> itemMono = inventoryClient.get()
-                            .uri(ApiConfig.INVENTORY_SERVICE_URL + "/{itemId}", chat.itemId())
+                            .uri(uriBuilder -> uriBuilder
+                                    .path(ApiConfig.INVENTORY_SERVICE_URL + "/{itemId}")
+                                    .build(chat.itemId()))
                             .retrieve()
                             .bodyToMono(InventoryServiceResponse.class)
-                            .onErrorResume(e -> Mono.just(new InventoryServiceResponse()));
+                            .onErrorResume(e -> {
+                                log.error("Inventory failed itemId={}", chat.itemId(), e);
+                                return Mono.just(new InventoryServiceResponse());
+                            });
 
                     return Mono.zip(userMono, itemMono)
-                            .map(tuple -> {
-                                UserServiceProfileResponse user = tuple.getT1();
-                                InventoryServiceResponse item = tuple.getT2();
-
-                                return UserChatsResponse.builder()
-                                        .chatId(chat.chatId())
-                                        .senderId(chat.senderId())
-                                        .receiverId(chat.receiverId())
-                                        .itemId(chat.itemId())
-                                        .lastMessage(chat.lastMessage())
-                                        .lastUpdated(chat.lastUpdated())
-                                        // User info
-                                        .username(user.getUsername())
-                                        .avatarUrl(user.getAvatarUrl())
-                                        // Item info
-                                        .title(item.getTitle())
-                                        .price(item.getPrice())
-                                        .thumbnailUrl(item.getThumbnailUrl())
-                                        .condition(item.getCondition())
-                                        .build();
-                            });
+                            .map(tuple -> buildUserChatsResponse(
+                                    chat,
+                                    tuple.getT1(),
+                                    tuple.getT2()
+                            ));
                 })
                 .collectList();
     }
 
 
-
-
-
-
-
-
-
-
-
-
-    private UserProfileResponse buildUserProfileResponse(UserServiceResponse user, List<PreviewServiceResponse> items) {
-        return UserProfileResponse.builder()
-                .userId(user.getId())
-                .username(user.getUsername())
-                .totalSales(user.getTotalSales())
-                .averageDeliveryTime(user.getAverageDeliveryTime())
-                .avatarUrl(user.getAvatarUrl())
-                .avgDescriptionRating(user.getAvgDescriptionRating())
-                .avgPackagingRating(user.getAvgPackagingRating())
-                .avgConditionRating(user.getAvgConditionRating())
-                .avgOverallRating(user.getAvgOverallRating())
-                .totalRatings(user.getTotalRatings())
-                .ratings(user.getRatings())
-                .registeredAt(user.getRegisteredAt())
-                .items(items)
-                .build();
-    }
-
-    private ItemPageResponse buildItemPageResponse(
-            InventoryServiceResponse item,
+        private UserChatsResponse buildUserChatsResponse(
+            ChatServiceResponse chat,
             UserServiceResponse user,
-            List<PreviewServiceResponse> userItems
+            InventoryServiceResponse item
     ) {
-        return ItemPageResponse.builder()
-                .id(item.getId())
+        return UserChatsResponse.builder()
+                .chatId(chat.chatId())
+                .senderId(chat.senderId())
+                .receiverId(chat.receiverId())
+                .itemId(chat.itemId())
+                .itemOwnerId(item.getUserId())
+                .lastMessage(chat.lastMessage())
+                .lastUpdated(chat.lastUpdated())
+
+                // User info
+                .username(user.getUsername())
+                .avatarUrl(user.getAvatarUrl())
+
+                // Item info
                 .title(item.getTitle())
-                .description(item.getDescription())
                 .price(item.getPrice())
-                .condition(item.getCondition())
-                .status(item.getStatus())
-                .type(item.getType())
-                .userId(item.getUserId())
-                .views(item.getViews())
-                .category(item.getCategory())
-                .createdAt(item.getCreatedAt())
-                .imageUrls(item.getImageUrls())
                 .thumbnailUrl(item.getThumbnailUrl())
-                .watchersCount(item.getWatchersCount())
-                .openToOffers(item.getOpenToOffers())
-                .pickUpByAppointment(item.getPickUpByAppointment())
-                .username(user != null ? user.getUsername() : null)
-                .avatarUrl(user != null ? user.getAvatarUrl() : null)
-                .registeredAt(user != null ? user.getRegisteredAt() : null)
-                .avgOverallRating(user != null ? user.getAvgOverallRating() : null)
-                .totalRatings(user != null ? user.getTotalRatings() : null)
-                .userItems(userItems)
+                .condition(item.getCondition())
                 .build();
     }
+
+
+    private UserProfileResponse buildUserProfileResponse(UserServiceResponse user, List<InventoryServiceResponse.ItemSummaryResponse> items) {
+        int active = (int) items.stream()
+                .filter(i -> "ACTIVE".equals(i.getStatus()))
+                .count();
+
+        int hidden = (int) items.stream()
+                .filter(i -> "HIDDEN".equals(i.getStatus()))
+                .count();
+
+        return UserProfileResponse.builder()
+                .user(user)
+                .userItems(items)
+                .totalItems(active)        // Number of items visible publicly (Active items only)
+                .totalActiveItems(active)  // Number of active items, used for the "Active" tab
+                .totalHiddenItems(hidden)  // Number of hidden items, used for the "Hidden" tab (owner only)
+                .build();
+    }
+
+    private ItemPageResponse buildItemPageResponse(InventoryServiceResponse item, UserServiceResponse user) {
+        return ItemPageResponse.builder()
+                .item(item)
+                .user(ItemPageResponse.UserPreview.builder()
+                        .userId(user != null ? user.getUserId() : null)
+                        .username(user != null ? user.getUsername() : null)
+                        .avatarUrl(user != null ? user.getAvatarUrl() : null)
+                        .registeredAt(user != null ? user.getRegisteredAt() : null)
+                        .avgOverallRating(user != null ? user.getAvgOverallRating() : null)
+                        .totalRatings(user != null ? user.getTotalRatings() : null)
+                        .build())
+                .build();
+    }
+
+
 }

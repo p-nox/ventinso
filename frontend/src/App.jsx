@@ -5,31 +5,43 @@ import {
     AddItemForm,
     ItemPage,
     MyProfilePage,
-    MyOrdersPage,
     OrderPage,
     HomePage,
     ChatPage,
-    AccountPage
+    AccountPage,
+    ChatFullView
 } from '@pages';
-
 import { useAuth } from '@context/AuthContext';
 import { ChatUIProvider } from '@context/ChatUIProvider';
 import { Layout } from '@components/Layout';
-import { Register } from '@components/Auth';
+import  ToasterProvider  from '@components/ToasterProvider/ToasterProvider';
+
+import { Register, Login } from '@components/Auth';
+
 
 
 export default function App() {
-    const [showRegister, setShowRegister] = useState(false);
+
     const location = useLocation();
     const { isLoggedIn } = useAuth();
+
+    const [showRegister, setShowRegister] = useState(false);
     const openRegister = () => setShowRegister(true);
     const closeRegister = () => setShowRegister(false);
 
+    const [showLogin, setShowLogin] = useState(false);
+    const openLogin = () => setShowLogin(true);
+    const closeLogin = () => setShowLogin(false);
 
 
     useEffect(() => {
         if (location.state?.openRegister) {
             setShowRegister(true);
+            window.history.replaceState({}, document.title);
+        }
+
+        if (location.state?.openLogin) {
+            setShowLogin(true);
             window.history.replaceState({}, document.title);
         }
     }, [location]);
@@ -52,17 +64,20 @@ export default function App() {
 
 
     return (
-        <Layout
-            showRegister={showRegister}
-            closeRegister={closeRegister}
-            openRegister={openRegister}
-        >
+        <Layout openLogin={openLogin}>
+            <ToasterProvider />
             <Routes>
+                {/* Home */}
                 <Route path={Paths.HOME} element={<HomePage />} />
-                <Route path={Paths.ITEM(':id')} element={<ItemPage />} />
-                <Route path={Paths.PROFILE(':id')} element={<MyProfilePage />} />
+
+                {/* Items */}
                 <Route
-                    path="/add-item"
+                    path="/item/:itemId"
+                    element={<ItemPage openLogin={openLogin} />}
+                />
+
+                <Route
+                    path={Paths.ADD_ITEM()}
                     element={
                         <AuthenticatedRoute>
                             <AddItemForm />
@@ -70,13 +85,33 @@ export default function App() {
                     }
                 />
                 <Route
-                    path="/item/:itemId/add-item"
+                    path={Paths.ADD_ITEM(':itemId')}
                     element={
                         <AuthenticatedRoute>
                             <AddItemForm />
                         </AuthenticatedRoute>
                     }
                 />
+
+                {/* Chat */}
+                <Route
+                    path={Paths.CHAT_FULL}
+                    element={
+                        <ChatUIProvider>
+                            <ChatFullView />
+                        </ChatUIProvider>
+                    }
+                />
+                <Route
+                    path={Paths.MESSAGES}
+                    element={
+                        <ChatUIProvider>
+                            <ChatPage />
+                        </ChatUIProvider>
+                    }
+                />
+
+                {/* Orders */}
                 <Route
                     path={Paths.ORDER(':id')}
                     element={
@@ -85,34 +120,24 @@ export default function App() {
                         </AuthenticatedRoute>
                     }
                 />
+
+                {/* Account */}
                 <Route
-                    path={Paths.ACCOUNT(":id") + "/*"}
+                    path={Paths.ACCOUNT(':id') + '/*'}
                     element={
                         <AuthenticatedRoute>
                             <AccountPage />
                         </AuthenticatedRoute>
                     }
                 />
-                <Route
-                    path={Paths.ORDERS_HISTORY + "/*"}
-                    element={
-                        <AuthenticatedRoute>
-                            <MyOrdersPage />
-                        </AuthenticatedRoute>
-                    }
-                />
-                <Route
-                    path="/messages"
-                    element={
-                        <ChatUIProvider>
-                            <ChatPage />
-                        </ChatUIProvider>
-                    }
-                />
+                <Route path={Paths.PROFILE(':id')} element={<MyProfilePage />} />
+
             </Routes>
 
-            {/* Register Modal */}
-            {showRegister && <Register onClose={closeRegister} />}
+            {/* Modals */}
+            {showLogin && <Login closeLogin={closeLogin} openRegister={openRegister} />}
+            {showRegister && <Register closeRegister={closeRegister} openLogin={openLogin} />}
         </Layout>
+
     );
 }

@@ -7,7 +7,7 @@ export default function TabGroup({
     onTabChange,
     buttonClassName,      
     containerClassName,
-    activeButtonClassName
+    activeButtonClassName,
 }) {
     return (
         <div className={containerClassName || styles.tabGroup}>

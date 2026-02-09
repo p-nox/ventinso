@@ -19,7 +19,7 @@ export const getChatMessages = (chatId, userId) => {
       headers: getAuthHeaders(),
       params: { userId },
     });
-    console.log('[getChatMessages] Response:', response.data);
+  
     return response;
   });
 };

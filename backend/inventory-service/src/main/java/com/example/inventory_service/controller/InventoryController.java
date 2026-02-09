@@ -1,7 +1,9 @@
 package com.example.inventory_service.controller;
 
-import com.example.inventory_service.dto.*;
-import com.example.inventory_service.enums.ItemStatus;
+import com.example.inventory_service.dto.request.CreateUpdateItemRequest;
+import com.example.inventory_service.dto.response.CategoryResponse;
+import com.example.inventory_service.dto.response.ItemPageResponse;
+import com.example.inventory_service.dto.response.ItemSummaryResponse;
 import com.example.inventory_service.service.InventoryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +28,29 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/{itemId}")
-    @Operation(summary = "Get item by ID", description = "Retrieve detailed information of a specific item")
-    public ResponseEntity<ItemResponse> getItemById(
-            @Parameter(description = "ID of the item") @PathVariable Long itemId) {
-        ItemResponse response = inventoryService.getItemById(itemId);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Get item by ID", description = "Retrieve detailed information of a specific item, " +
+            "can include other items of the owner")
+    public ResponseEntity<ItemPageResponse> getItemById(
+            @Parameter(description = "ID of the item") @PathVariable Long itemId,
+            @Parameter(description = "ID of the user") @RequestParam(required = false) Long userId,
+            @RequestParam(required = false, defaultValue = "false") boolean fetchOtherActiveItems ) {
+
+        return ResponseEntity.ok(inventoryService.getItemById(itemId, userId, fetchOtherActiveItems));
+    }
+
+    @GetMapping("/{userId}/items")
+    @Operation(summary = "Get item by ID", description = "Retrieve all items of a specific userId," +
+            "may include hidden items if the requested userId is the owner of user profile")
+    public ResponseEntity<List<ItemSummaryResponse>> getAllItemsByUserId(
+            @PathVariable Long userId,
+            @RequestParam(required = false) boolean includeHiddenItems) {
+        return ResponseEntity.ok(inventoryService.getAllItemsByUserId(userId, includeHiddenItems));
     }
 
     @GetMapping("/categories")
     @Operation(summary = "Get categories", description = "Retrieve the list of available item categories")
     public ResponseEntity<List<CategoryResponse>> getCategories() {
-        List<CategoryResponse> response = inventoryService.getCategories();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(inventoryService.getCategories());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

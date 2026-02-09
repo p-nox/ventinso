@@ -1,16 +1,10 @@
 import React from 'react';
-import { EuroIcon } from '@assets/icons';
+import { Euro } from 'lucide-react';
 import styles from './PriceBtn.module.css';
 
 const VARIANTS = {
-  default: {
-    borderRadius: 'var(--border-radius)',
-    padding: '8px 12px',
-    fontSize: '1rem',
-    iconSize: 20,
-  },
   withPadding: {
-    width: '50%',
+    width: '38%',
     borderRadius: '20px',
     iconSize: 12,
   },
@@ -49,8 +43,9 @@ export default function PriceBtn({
         }}
       />
       <div className={styles.iconContainer}>
-        <EuroIcon width={config.iconSize} height={config.iconSize} fill="var(--text-color)" />
+        <Euro className={styles.euroIcon} />
       </div>
+
     </div>
   );
 }

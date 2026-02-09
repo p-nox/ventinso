@@ -6,10 +6,10 @@ import com.example.chat_service.entity.Message;
 import com.example.chat_service.entity.UserSnapshot;
 import com.example.chat_service.enums.MessageType;
 import com.example.chat_service.exception.AccessDeniedException;
+import com.example.chat_service.exception.OfferActiveException;
 import com.example.chat_service.repository.ChatRepository;
 import com.example.chat_service.repository.MessageRepository;
 import com.example.chat_service.repository.UserSnapshotRepository;
-import com.example.chat_service.utils.Mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -263,6 +263,19 @@ public class ChatServiceImpl implements ChatService {
                 new Chat(request.getSenderId(), request.getReceiverId(), request.getItemId())
         ));
 
+        List<UserSnapshot> snapshots = List.of(
+                UserSnapshot.builder()
+                        .userId(request.getSenderId())
+                        .avatarUrl(request.getSenderAvatar())
+                        .build(),
+                UserSnapshot.builder()
+                        .userId(request.getReceiverId())
+                        .avatarUrl(request.getReceiverAvatar())
+                        .build()
+        );
+        snapshots.forEach(s -> log.info("Saving UserSnapshot: userId={}, avatarUrl={}", s.getUserId(), s.getAvatarUrl()));
+        userSnapshotRepository.saveAll(snapshots);
+
         // Save the message in DB and update chat with last msgId
         Message savedMessage = saveMessageAndUpdateChat(request, MessageType.TEXT, null);
 
@@ -296,6 +309,8 @@ public class ChatServiceImpl implements ChatService {
                 messageReq.getReceiverId(),
                 messageReq.getItemId()
         ).orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+
+        validateOffer(messageReq, chat);
 
         // if the MessageType == MEDIA we want the file urls to sent
         String content = type == MessageType.TEXT
@@ -332,6 +347,19 @@ public class ChatServiceImpl implements ChatService {
 
         return message;
     }
+
+    private void validateOffer(MessageRequest messageReq, Chat chat) {
+        if (messageReq.getMessageType() == MessageType.OFFER) {
+            boolean hasActiveOffer = messageRepository
+                    .findFirstByChatAndMessageTypeOrderByTimestampDesc(chat, MessageType.OFFER)
+                    .isPresent();
+
+            if (hasActiveOffer) {
+                throw new OfferActiveException("An active offer already exists for this chat.");
+            }
+        }
+    }
+
 
     private WebSocketMessage buildWebSocketMessage(Message message, List<String> fileUrls) {
 

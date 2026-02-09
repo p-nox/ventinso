@@ -1,10 +1,10 @@
 package com.example.user_service.controller;
 
-import com.example.user_service.dto.*;
+import com.example.user_service.dto.request.UpdateProfileRequest;
+import com.example.user_service.dto.response.*;
 import com.example.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,12 +25,24 @@ public class UserController {
 
     private final UserService userService;
 
+
+    @GetMapping("/{userId}/bootstrap")
+    @Operation(
+            summary = "Get user bootstrap info",
+            description = "Lightweight user identity info for login and navbar rendering"
+    )
+    public ResponseEntity<UserBootstrapResponse> getUserBootstrap(
+            @PathVariable Long userId) {
+
+        return ResponseEntity.ok(userService.getUserBootstrap(userId));
+    }
+
+
     @GetMapping("/{userId}/summary")
     @Operation(summary = "Get user summary", description = "Retrieve summary info for a specific user")
     public ResponseEntity<UserSummaryResponse> getUserSummary(
             @Parameter(description = "ID of the user") @PathVariable Long userId) {
-        UserSummaryResponse response = userService.getUserSummary(userId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.getUserSummary(userId));
     }
 
     @GetMapping("/{userId}/profile")
@@ -68,7 +80,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{filename}")
+    @GetMapping("/avatar/{filename}")
     @Operation(summary = "Get user image", description = "Retrieve a stored user profile image by filename")
     public ResponseEntity<byte[]> getImage(
             @Parameter(description = "Filename of the image") @PathVariable String filename) {

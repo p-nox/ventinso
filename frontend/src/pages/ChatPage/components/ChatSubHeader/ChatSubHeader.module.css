@@ -10,7 +10,7 @@
 .thumbnail {
   width: 46px;
   height: 46px;
-  border-radius: var(--border-radius);
+  border-radius: 20%;
   object-fit: cover;
 }
 
@@ -24,8 +24,13 @@
 .title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--text-link-color);
   margin: 0;
+  text-decoration: none;
+}
+
+.title:hover {
+  color: var(--text-link-color-hover);
 }
 
 .price {

@@ -5,11 +5,11 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() =>
-    localStorage.getItem("authenticatedUser") !== null
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("authenticatedUser") !== null);
   const [username, setUsername] = useState(localStorage.getItem("authenticatedUser") || null);
   const [userId, setUserId] = useState(localStorage.getItem("userId") || null);
+  const [userAvatar, setUserAvatar] = useState(localStorage.getItem("userAvatar") || null);
+  
   const [watchlist, setWatchlist] = useState(() => {
     const stored = localStorage.getItem("watchlist");
     return stored ? JSON.parse(stored) : [];
@@ -23,12 +23,10 @@ export function AuthProvider({ children }) {
   };
 
   const clearSession = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("authenticatedUser");
+    localStorage.clear();
   };
 
-  const login = (token, watchlistItems = []) => {
+  const login = (token, userData) => {
     const rawToken = token.startsWith('Bearer ') ? token.slice(7) : token;
     const decoded = jwt_decode(rawToken);
 
@@ -36,7 +34,14 @@ export function AuthProvider({ children }) {
 
     setUserId(decoded.userId);
     setUsername(decoded.sub);
-    const ids = watchlistItems.map(item => item.itemId);
+
+    const userAvatar = userData.avatarUrl;
+    setUserAvatar(userAvatar);
+    localStorage.setItem("userAvatar", userAvatar);
+
+    const ids = userData.watchlist
+      .map(item => item.itemId)
+      .filter(id => id !== undefined);
     setWatchlist(ids);
     localStorage.setItem("watchlist", JSON.stringify(ids));
 
@@ -44,25 +49,16 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    clearSession();
+    clearSession(); 
     setUserId(null);
     setUsername(null);
+    setUserAvatar(null); 
     setWatchlist([]);
-    localStorage.removeItem("watchlist");
     setIsLoggedIn(false);
   };
 
-  const toggleWatchlist = (itemId) => {
-    const id = Number(itemId);
-    setWatchlist(prev => {
-      const updated = prev.includes(id)
-        ? prev.filter(id2 => id2 !== id)
-        : [...prev, id];
 
-      localStorage.setItem("watchlist", JSON.stringify(updated));
-      return updated;
-    });
-  };
+  
 
   const checkLoggedIn = () => localStorage.getItem("authenticatedUser") !== null;
 
@@ -72,9 +68,10 @@ export function AuthProvider({ children }) {
       userId,
       username,
       watchlist,
+      userAvatar,
+      setUserAvatar,
       login,
       logout,
-      toggleWatchlist,
       checkLoggedIn
     }}>
       {children}

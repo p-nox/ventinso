@@ -1,7 +1,7 @@
 package com.example.user_service.controller;
 
-import com.example.user_service.dto.RatingRequest;
-import com.example.user_service.dto.RatingResponse;
+import com.example.user_service.dto.request.RatingRequest;
+import com.example.user_service.dto.response.RatingResponse;
 import com.example.user_service.service.implementation.RatingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

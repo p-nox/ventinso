@@ -16,6 +16,7 @@ public class NotificationResponse {
     private String redirectUrl;
     private NotificationType type;
     private LocalDateTime createdAt;
+    private String thumbnail;
     private Boolean isRead;
     private String id;
     private Long userId;

@@ -57,6 +57,16 @@ public class JwtTokenProvider {
         return  Jwts.parser().setSigningKey(key()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Long getUserId(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", Long.class);
+    }
+
+
     private boolean isTokenExpired(String token){
         return  extractExpiration(token).before(new Date());
     }
@@ -65,6 +75,8 @@ public class JwtTokenProvider {
         return Jwts.parser().setSigningKey(key()).build().parseClaimsJws(token).getBody().getExpiration();
 
     }
+
+
 
     private Key key(){
         return Keys.hmacShaKeyFor(

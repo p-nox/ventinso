@@ -114,6 +114,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void logout(Long userId, String token) {
+
+        //send kafka event to chat service
+        //send kafka event to notification service
+
+    }
+
+    @Override
     public String register(RegisterRequest registerDto) {
 
         if(authRepository.existsByUsername(registerDto.getUsername())) {
@@ -143,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
                                     .name(registerDto.getName())
                                     .username(user.getUsername())
                                     .email(user.getEmail())
-                                    .status(user.getStatus())
+                                    .status(user.getStatus().toString())
                                     .registeredAt(user.getRegisteredAt())
                                     .build();
 

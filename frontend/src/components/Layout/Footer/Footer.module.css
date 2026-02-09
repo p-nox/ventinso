@@ -1,6 +1,6 @@
 .footerWrapper {
     width: 100%;
-    background-color: var(--footer-background-color);
+    background-color: var(--header-main-color-bg);
     border-top: 1px solid var(--border-color);
     color: var(--text-color);
     padding: 2rem 1rem;
@@ -26,11 +26,7 @@
     text-decoration: none;
 }
 
-.socialIcons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.socialIcons a {
-    color: var(--text-color);
+.links:hover a {
+    color: var(--text-link-color-hover);
+    text-decoration: none;
 }

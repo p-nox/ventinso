@@ -1,6 +1,6 @@
 package com.example.user_service.service.implementation;
 
-import com.example.user_service.dto.WalletResponse;
+import com.example.user_service.dto.response.WalletResponse;
 import com.example.user_service.entity.Wallet;
 import com.example.user_service.exception.ResourceNotFoundException;
 import com.example.user_service.repository.WalletRepository;

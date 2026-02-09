@@ -15,7 +15,6 @@ export function MessagesList({ messages, chatId, price }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const { sendMessage } = useChatSocketContext();
   const { userId, username, selectedChat } = useChatUI();
   const messagesEndRef = useRef(null);
@@ -62,6 +61,7 @@ export function MessagesList({ messages, chatId, price }) {
       price: offerAmount,
       orderType: "OFFER",
     };
+    console.log("dasf",orderRequest);
 
     try {
       const response = await sendOrder(orderRequest);
@@ -80,10 +80,6 @@ export function MessagesList({ messages, chatId, price }) {
       alert("Order failed");
     }
   }
-
-
-
-
 
   function handleOfferAction(message, action) {
     setHandledOffers((prev) => new Set(prev).add(message.id));
@@ -168,15 +164,17 @@ export function MessagesList({ messages, chatId, price }) {
       }
     }
 
+    // Text messages
     if (type === "TEXT") {
       return <div className={`${styles.messageBubble} ${isOwn ? styles.messageOwn : styles.messageOther}`}><span>{previewContent}</span></div>;
     }
 
+    // Media messages
     if (type === "MEDIA") {
 
-      const files = Array.isArray(msg.payload) 
-                    ? msg.payload 
-                    : JSON.parse(msg.payload);
+      const files = Array.isArray(msg.payload)
+        ? msg.payload
+        : JSON.parse(msg.payload);
 
       images = files.filter((f) => f.match(/\.(jpeg|jpg|png|gif)$/i));
       videos = files.filter((f) => f.match(/\.(mp4|webm|ogg)$/i));
@@ -323,7 +321,7 @@ export function MessagesList({ messages, chatId, price }) {
             <div className={styles.offerButtons}>
               <button className={styles.accept} onClick={() => handleOfferAction(msg, "accept")}>Accept</button>
               <button className={styles.reject} onClick={() => handleOfferAction(msg, "reject")}>Reject</button>
-              <button className={styles.newOffer} onClick={() => handleOfferAction(msg, "new_offer")}>Counter Again</button>
+              <button className={styles.newOffer} onClick={() => handleOfferAction(msg, "new_offer")}>Counter</button>
             </div>
           )}
           {isOwn && (
@@ -343,6 +341,17 @@ export function MessagesList({ messages, chatId, price }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+
+
+  if (!selectedChat || !messages || messages.length === 0) {
+    return (
+      <div className={styles.emptyMessages}>
+        <h3>No messages yet</h3>
+        <p>When someone sends a message to you, it will appear here.</p>
+      </div>
+    );
+  }
 
   return (
     <>

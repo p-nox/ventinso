@@ -62,7 +62,7 @@ public class SseNotificationService {
                 emitter.send(
                         SseEmitter.event()
                                 .name("notification")
-                                .data(payload) // αφήνουμε χωρίς MediaType, θα σταλεί σωστά ως text/event-stream
+                                .data(payload)
                 );
 
                 log.info("Notification sent successfully to emitter {}", emitter);

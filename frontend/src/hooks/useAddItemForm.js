@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { getCategories, createItem, updateItem } from '@services/InventoryService';
+import { Paths } from "@config/Config";
 
 export function useAddItemForm(initialItem, userId, navigate) {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     categoryId: '',
-    type: '',
+    type: 'SELL',
     condition: '',
     price: '',
     openToOffers: false,
@@ -16,7 +17,7 @@ export function useAddItemForm(initialItem, userId, navigate) {
   });
   const [files, setFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnail, setThumbnail] = useState();
 
   const maxTitleChars = 100;
   const maxDescriptionChars = 10000;
@@ -29,6 +30,7 @@ export function useAddItemForm(initialItem, userId, navigate) {
       });
   }, []);
 
+
   // Initialize form if editing an item
   useEffect(() => {
     if (initialItem) {
@@ -37,42 +39,35 @@ export function useAddItemForm(initialItem, userId, navigate) {
         title: initialItem.title,
         categoryId: matchedCategory?.id || '',
         categoryName: initialItem.category,
-        type: initialItem.type,
+        type: "SELL",
         condition: initialItem.condition,
         price: initialItem.price.toString(),
         description: initialItem.description,
         openToOffers: initialItem.openToOffers || false,
         pickUpByAppointment: initialItem.pickUpByAppointment || false,
         location: initialItem.location || '',
+        thumbnail: initialItem?.thumbnailUrl?.split?.("/").pop()
       });
-
-      const initialFiles = initialItem.imageUrls?.map(url => ({ url })) || [];
-      setFiles(initialFiles);
       setExistingImages(initialItem.imageUrls || []);
 
-      // default pick first image as thumbnail
-      const firstThumbnail =
-        initialItem.thumbnailUrl ||
-        initialFiles[0]?.url ||
-        initialItem.imageUrls?.[0] ||
-        null;
-
-      // remove prefix if thumbnail is Url
-      if (firstThumbnail) {
-        setThumbnail(typeof firstThumbnail === "string" ? firstThumbnail.split("/").pop() : firstThumbnail);
-      }
     }
   }, [initialItem, categories]);
 
   useEffect(() => {
-    if (files.length > 0 || existingImages.length > 0) {
-      const firstFile = files[0]?.name || files[0]?.url;
-      const firstExisting = existingImages[0]?.split?.("/")?.pop() || existingImages[0];
-      const autoThumb = firstFile || firstExisting;
-      setThumbnail(autoThumb);
-    }
-  }, [files, existingImages]);
 
+    if (!initialItem && existingImages.length === 0 && files.length === 0) return;
+
+    const firstFile = files[0]?.name || files[0]?.url;
+
+    const firstExisting =
+      initialItem?.thumbnailUrl?.split?.("/")?.pop() ||
+      existingImages[0];
+
+    const autoThumb = firstExisting || firstFile;
+
+    if (!thumbnail && autoThumb) setThumbnail(autoThumb);
+
+  }, [files, existingImages, initialItem]);
 
   const handleChange = (field) => (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -86,15 +81,14 @@ export function useAddItemForm(initialItem, userId, navigate) {
     }
   };
 
-  const handleAddItemSubmit = async (itemValidator) => {
-    if (itemValidator && !itemValidator()) return;
-
+  const handleAddItemSubmit = async () => {
+    
     if (!thumbnail) {
       alert("Thumbnail is required");
       return;
     }
 
-    const cleanThumbnail = thumbnail?.includes("/api/images/") ? thumbnail.split("/").pop() : thumbnail;
+    const cleanThumbnail = thumbnail.split("/").pop();
 
     const itemPayload = {
       title: formData.title,
@@ -123,12 +117,14 @@ export function useAddItemForm(initialItem, userId, navigate) {
           openToOffers: false,
           pickUpByAppointment: false,
         });
+
         setFiles([]);
         setExistingImages([]);
         setThumbnail(null);
+
       } else {
-        await updateItem(initialItem.id, itemPayload, files);
-        navigate(`/Item/${initialItem.id}`);
+        await updateItem(initialItem.itemId, itemPayload, files);
+        navigate(Paths.ITEM(initialItem.itemId));
       }
     } catch (error) {
       console.error("Failed to create/update item:", error);

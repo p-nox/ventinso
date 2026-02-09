@@ -1,7 +1,8 @@
 package com.example.user_service.service;
 
 import com.example.auth_service.event.NewUserEvent;
-import com.example.user_service.dto.*;
+import com.example.user_service.dto.request.UpdateProfileRequest;
+import com.example.user_service.dto.response.*;
 import com.example.user_service.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public interface UserService {
+
+    UserBootstrapResponse getUserBootstrap(Long userId);
 
     UserResponse getUserById(Long userId);
 

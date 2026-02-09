@@ -3,7 +3,7 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,28 +11,23 @@
     backdrop-filter: blur(4px);
 }
 
-.cardWrapper {
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 24px;
+.wrapper {
+    position: relative;
     width: 400px;
     max-width: 90%;
-    background-color: var(--background-color);
+    background-color: var(--main-background-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
 }
 
-.cardWrapper:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
-}
-
-.cardHeader {
+.header {
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 12px;
-    border-bottom: 1px solid rgba(--border-color);
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
     position: relative;
 }
 
@@ -40,19 +35,34 @@
     margin: 0;
     font-size: 1.8rem;
     font-weight: 600;
-    color: var(--accent-color);
+    color: var(--header-text-color);
 }
 
-.closeBtn {
+.closeButton {
     position: absolute;
     top: 12px;
     right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
-    font-size: 22px;
     cursor: pointer;
-    color: var(--text-color);
-    transition: color 0.2s;
+    padding: 4px;
+    line-height: 0;
+    z-index: 10;
+}
+
+.closeIcon {
+    width: 25px;
+    height: 25px;
+    stroke-width: 2;
+    stroke: var(--text-color-muted);
+    transition: transform 0.2s;
+}
+
+.closeButton:hover .closeIcon {
+    transform: scale(1.1);
 }
 
 .cardBody {
@@ -70,73 +80,91 @@
     flex-direction: column;
 }
 
-.label {
-    font-size: 0.95rem;
-    color: var(--text-color);
-    margin-bottom: 6px;
-}
-
 .input {
-    padding: 10px 14px;
-    font-size: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border-color);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: all 0.2s ease;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius);
+    outline: none;
+   
+    background-color: var(--input-color-bg);
+    box-shadow: var(--box-shadow);
+    color: var(--text-color-muted);
+    border: none;
 }
 
 .input:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: var(--box-shadow);
+  border-color: var(--color-button-bg);
+  box-shadow: 0 0 0 2px var(--input-focus-border-color);
+}
+
+.formText {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+    margin-left: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.helperText {
+    composes: formText;
+    color: var(--text-muted, #888);
 }
 
 .error {
-    color: var(--text-error-color);
+    composes: formText;
     font-size: 0.85rem;
-    margin-top: 4px;
+    color: var(--text-error-color);
 }
 
 
+.signupText {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-color-label);
+}
 
+.signupLink {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--text-link-color);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.signupLink:hover {
+    color: var(--text-link-color-hover);
+    text-decoration: underline;
+}
 
 .submitWrapper {
     display: flex;
     justify-content: center;
-    margin-top: 16px;
 }
 
 .submitBtn {
-    background-color: var(--accent-color);
-    color: var(--text-color);
+    width: 100%;
+    padding: 0.5rem 0;
     border: none;
-    padding: 10px 28px;
-    border-radius: 0.5rem;
-    /* ή var(--border-radius) */
+    border-radius: var(--border-radius);
+    background-color: var(--button-theme-color-bg);
+    color: #fff;
+    font-weight: 500;
     font-size: 1rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s, transform 0.15s ease;
 }
 
 .submitBtn:hover {
-    background-color: #08a06c;
-    box-shadow: 0 4px 12px rgba(10, 209, 143, 0.4);
+    background-color: var(--button-theme-color-bg-hover);
+    transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+    background-color: var(--input-color-bg);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: default;
+    opacity: 0.7;
 }

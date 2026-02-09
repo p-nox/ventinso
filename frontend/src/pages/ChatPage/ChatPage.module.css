@@ -7,7 +7,8 @@
   display: flex;
   flex-direction: row;
   background-color: var(--background-color);
-  border-radius: var(--border-radius);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   font-family: sans-serif;
   overflow: hidden;
@@ -35,36 +36,59 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 140px;
-  height: 40px;
-  background-color: #3b82f6;
-  color: white;
-  border-radius: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: var(--theme-color);
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   cursor: pointer;
   z-index: 1001;
-  padding: 0 12px;
-  gap: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  position: fixed;
 }
 
-.minimizedBarButton {
-  background: transparent;
+.minimizedBar:hover .closeButton {
+  visibility: visible;
+}
+
+.chatLabel {
+  font-size: 24px;
+  color: white;
+  user-select: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  background: white;
   border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  visibility: hidden;
 }
 
 
-.minimizedBar button {
-  opacity: 0;
-  transition: opacity 0.2s;
+.fullScreenModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background-color: var(--background-color);
+  z-index: 9999;
 }
 
-.minimizedBar:hover button {
-  opacity: 1;
+.fullScreenModal .chatWindow {
+  height: 100%;
 }
-
-

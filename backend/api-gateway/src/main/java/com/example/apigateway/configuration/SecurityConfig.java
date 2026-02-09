@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 ApiConfig.RATING_SERVICE_URL + "/**",
                                 ApiConfig.STRIPE_WEBHOOK_SERVICE_URL + "/**",
                                 ApiConfig.NOTIFICATION_SERVICE_URL + "/**",
+                                ApiConfig.NOTIFICATION_SETTINGS_SERVICE_URL + "/**",
                                 ApiConfig.CHAT_SERVICE_URL + "/**",
                                 "/v3/api-docs/**",
                                 "/api/webjars/**",

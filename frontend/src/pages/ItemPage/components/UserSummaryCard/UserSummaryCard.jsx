@@ -1,12 +1,12 @@
 import React from "react";
 import styles from "./UserSummaryCard.module.css";
-import { Paths, API_BASE_URL } from "@config/Config";
+import { Paths, API_URLS } from "@config/Config";
 import { getRatingPercentageAndLabel, formatMemberSince } from '@utils/utils';
 import { Calendar, Archive } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function UserSummaryCard({
-    avatarUrl,
+    avatar,
     username,
     totalItems,
     userId,
@@ -16,21 +16,31 @@ export default function UserSummaryCard({
 }) {
 
     const { percentage, label } = getRatingPercentageAndLabel(avgOverallRating);
+
     return (
+
         <div className={styles.card}>
+
             <Link to={Paths.PROFILE(userId)}>
+
                 <img
-                    src={`${API_BASE_URL}${avatarUrl}?t=${Date.now()}`}
+                    src={`${API_URLS.AVATAR_FILE(avatar)}?t=${Date.now()}`}
                     alt="User Avatar"
                     className={styles.avatar}
                 />
+                
             </Link>
+
             <div className={styles.info}>
 
                 <Link to={Paths.PROFILE(userId)} style={{ textDecoration: 'none', color: 'inherit' }}>
+
                     <h3 className={styles.name}>{username}</h3>
+
                 </Link>
+
                 <div className={styles.rating}>
+
                     {totalRatings > 0 ? (
                         <>
                             <span>{percentage}% {label}</span>
@@ -41,29 +51,27 @@ export default function UserSummaryCard({
                     ) : (
                         <span>No reviews yet</span>
                     )}
+
                 </div>
 
-               {/*<div className={styles.followers}>
-                    <Users className={styles.icon} />
-                    <span>46 followers</span>
-                </div>
-                 */} 
+
                 <div className={styles.items}>
+
                     <Archive className={styles.icon} />
                     <span>{totalItems} {totalItems === 1 ? "item" : "items"}</span>
+
                 </div>
 
 
-                <div className={styles.location}>
+                <div className={styles.date}>
+
                     <Calendar className={styles.icon} />
                     <span>Member Since {formatMemberSince(registeredAt)} </span>
+
                 </div>
+
             </div>
-            
-            {/*<button className={styles.addUser}>
-                <UserPlus />
-                <UserCheck />
-            </button>  */} 
+
         </div>
     );
 }

@@ -8,13 +8,24 @@ import { SectionTitle } from '@components/ui';
 export default function ReviewsSection({ reviews }) {
   const sectionRef = useRef(null);
 
-  if (!reviews || reviews.length === 0) return null;
-
   const handleTitleClick = () => {
     if (sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Fallback αν δεν υπάρχουν reviews
+  if (!reviews || reviews.length === 0) {
+    return (
+      <div ref={sectionRef}>
+        <SectionTitle text="Recent Reviews" onClick={handleTitleClick} />
+        <div className={styles.emptyMessage}>
+        <p>No reviews yet</p>
+        <p>Collecting reviews takes time</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={sectionRef}>

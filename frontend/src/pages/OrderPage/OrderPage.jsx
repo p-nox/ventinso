@@ -5,6 +5,8 @@ import { OrderDetails, OrderPageButtons, EvaluationCard } from './components';
 import { getOrder, confirmOrderProgress } from '@services/OrderService.js';
 import { createRating, getRating } from '@services/UserService.js';
 import { useAuth } from '@context/AuthContext.jsx';
+import UserProfileCard from '../MyProfilePage/components/UserProfileCard/UserProfileCard';
+
 
 export default function OrderPage() {
     const { id } = useParams();
@@ -30,7 +32,7 @@ export default function OrderPage() {
         getOrder(id)
             .then(async response => {
                 setOrder({ ...response, shippingAddress: mockShippingAddress });
-               
+               console.log(response);
                 if (response.ratingSubmitted) {
                     try {
                         const rating = await getRating(response.id);
@@ -74,18 +76,16 @@ export default function OrderPage() {
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.header}>
-                <h2>Order #{order.id}</h2>
-            </div>
-
+    
             <div className={styles.content}>
+    
                 <OrderDetails order={order} />
                 <div className={styles.sideWrapper}>
                     <OrderPageButtons
                         role={role}
                         paidAt={order.paidAt}
                         sentAt={order.sentAt}
-                        arrivedAt={order.arrivedAt}
+                        arrivedAt={order.arrivedAt} //Order #{order.id} <UserProfileCard user={user} />
                         onConfirm={handleConfirmClick}
                         sellerUsername={order.sellerUsername}
                         buyerUsername={order.buyerUsername}

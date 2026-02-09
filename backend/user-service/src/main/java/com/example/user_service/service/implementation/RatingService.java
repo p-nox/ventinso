@@ -1,7 +1,7 @@
 package com.example.user_service.service.implementation;
 
-import com.example.user_service.dto.RatingRequest;
-import com.example.user_service.dto.RatingResponse;
+import com.example.user_service.dto.request.RatingRequest;
+import com.example.user_service.dto.response.RatingResponse;
 import com.example.user_service.entity.Rating;
 import com.example.user_service.entity.User;
 import com.example.user_service.enums.RatingValue;

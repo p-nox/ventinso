@@ -7,9 +7,12 @@ import com.example.notification_service.enums.EventAction;
 import com.example.notification_service.enums.NotificationType;
 import com.example.order_service.event.OrderEvent;
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 @AllArgsConstructor
@@ -17,8 +20,16 @@ public class NotificationFactory {
 
 
     public List<Notification> buildPriceUpdateNotification(PriceUpdateEvent e, EventAction action) {
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.forLanguageTag("el-GR"));
+        nf.setMaximumFractionDigits(0);
+        nf.setMinimumFractionDigits(0);
+
+        String oldPriceStr = nf.format(e.getOldPrice());
+        String newPriceStr = nf.format(e.getPrice());
+
         String message = "Price dropped! \"" + e.getTitle() + "\" is now available from "
-                + e.getOldPrice() + " to " + e.getPrice() + ". Don't miss out!";
+                + oldPriceStr + " to " + newPriceStr + ". Don't miss out!";
 
         return e.getWatchers().stream()
                 .map(watcherId -> Notification.builder()
@@ -26,12 +37,14 @@ public class NotificationFactory {
                         .message(message)
                         .type(NotificationType.INVENTORY)
                         .action(action)
+                        .thumbnail(e.getThumbnail())
                         .redirectUrl("/item/" + e.getItemId())
                         .userId(watcherId)
                         .isRead(false)
                         .build())
                 .toList();
     }
+
 
     public Notification buildItemSoldNotification(OrderEvent e, EventAction action) {
         String message = "Someone just bought \"" + e.getItemTitle() + "\". Check it out!";

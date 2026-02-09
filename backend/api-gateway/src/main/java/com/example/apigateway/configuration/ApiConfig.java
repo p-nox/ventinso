@@ -19,6 +19,7 @@ public final class ApiConfig {
     public static final String AUTH_SERVICE_URL = "/api/auth";
     public static final String INVENTORY_SERVICE_URL = "/api/inventory";
     public static final String NOTIFICATION_SERVICE_URL = "/api/notifications";
+    public static final String NOTIFICATION_SETTINGS_SERVICE_URL = "/api/notification-preferences";
     public static final String PREVIEW_SERVICE_URL = "/api/preview";
     public static final String USER_SERVICE_URL = "/api/users";
     public static final String ORDER_SERVICE_URL = "/api/orders";

@@ -1,5 +1,5 @@
 import styles from "./SearchBar.module.css";
-import { SearchIcon } from "@assets/icons";
+import { Search } from "lucide-react";
 import Button from "@components/Buttons/Button/Button";
 import { useState, useEffect } from "react";
 import { useSearch } from '@context/SearchContext';
@@ -11,7 +11,6 @@ export default function SearchBar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-
   useEffect(() => {
     const q = searchParams.get("q") || "";
     setLocalQuery(q);
@@ -20,30 +19,42 @@ export default function SearchBar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const params = new URLSearchParams();
+
+    // Κρατάμε όλα τα υπάρχοντα params και αλλάζουμε μόνο το "q"
+    const params = new URLSearchParams(searchParams);
     if (localQuery) {
       params.set("q", localQuery);
+    } else {
+      params.delete("q"); // αν το πεδίο είναι κενό, διαγράφουμε το q
     }
+
     navigate({ pathname: "/", search: params.toString() }, { replace: false });
+    setQuery(localQuery); // ενημερώνουμε και το context
   };
+
 
   return (
     <div className={styles.searchContainer}>
+
       <form className={styles.searchForm} onSubmit={handleSearch}>
+
         <Button
           type="submit"
-          icon={() => <SearchIcon width={20} height={24} />}
+          icon={() => <Search />}
           variant="search"
         />
+
         <input
           className={styles.searchInput}
           type="search"
-          placeholder=" What are you looking for?"
+          placeholder=" Search for items"
           aria-label="Search"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
         />
+
       </form>
+
     </div>
   );
 }

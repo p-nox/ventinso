@@ -4,8 +4,9 @@
   gap: 8px; 
   cursor: pointer;
   font-size: 1.2rem;
-  color: #fafafa; 
+  color: var(--text-color); 
   user-select: none; 
+  margin-right: 20rem;
 }
 
 .checkbox input[type="checkbox"] {

@@ -35,6 +35,9 @@ public class Notification {
     @Field("action")
     private EventAction action;
 
+    @Field("thumbnail")
+    private String thumbnail;
+
     @Field("is_read")
     private Boolean isRead = false;
 

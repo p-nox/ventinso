@@ -3,6 +3,8 @@ import { API_URLS } from "@config/Config";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useAuth } from "@context/AuthContext";
+import { toast } from "react-hot-toast";
+import CustomToast from "@components/ToasterProvider/CustomToast";
 
 const ChatWebSocketContext = createContext(null);
 
@@ -12,7 +14,7 @@ export function ChatWebSocketProvider({ children }) {
   const [newChats, setNewChats] = useState([]);
   const [chats, setChats] = useState([]);
   const stompClientRef = useRef(null);
-  const subscriptionRef = useRef(null);
+  const subscriptionRef = useRef([]);
 
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -22,11 +24,18 @@ export function ChatWebSocketProvider({ children }) {
       reader.readAsDataURL(file);
     });
 
+const disconnect = () => {
+  subscriptionRef.current.forEach(s => s.unsubscribe?.());
+  subscriptionRef.current = [];
+
+  stompClientRef.current?.deactivate();
+  stompClientRef.current = null;
+};
+
 
   useEffect(() => {
     if (!userId) {
-      if (subscriptionRef.current) subscriptionRef.current.unsubscribe();
-      if (stompClientRef.current) stompClientRef.current.deactivate();
+      disconnect();
       setMessages([]);
       return;
     }
@@ -45,6 +54,19 @@ export function ChatWebSocketProvider({ children }) {
           (msg) => {
             try {
               const data = JSON.parse(msg.body);
+
+              if (data.errorType === "OFFER_ACTIVE") {
+                toast.custom((t) => (
+                  <CustomToast
+                    id={t.id}
+                    message="You already have an active offer."
+                    type="error"
+                  />
+                ));
+                setMessages(prev => [...prev, { error: true, ...data }]);
+                return;
+              }
+
               if (data.messageResponse) {
                 console.log("received message:", data.messageResponse);
                 setMessages(prev => [...prev, data]);
@@ -71,7 +93,7 @@ export function ChatWebSocketProvider({ children }) {
               itemId: data.chatSummaryResponse.itemId,
             };
 
-           
+
             setNewChats(prev => {
               const exists = prev.some(c => c.chatId === sidebarChat.chatId);
               if (exists) return prev;
@@ -106,7 +128,7 @@ export function ChatWebSocketProvider({ children }) {
 
     if (!userId) return;
 
-   
+
     const messageBase = {
       senderId: Number(userId),
       receiverId: Number(receiverId),

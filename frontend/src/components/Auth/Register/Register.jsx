@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom';
 import { registerAPICall } from '@services/AuthService';
 import { useNavigate } from 'react-router-dom';
 import styles from './Register.module.css';
-import { CloseIcon } from '@assets/icons';
+import { X } from "lucide-react";
 
-export default function Register({ onClose }) {
+export default function Register({ closeRegister, openLogin }) {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: '',
         username: '',
@@ -15,7 +17,14 @@ export default function Register({ onClose }) {
     });
 
     const [formErrors, setFormErrors] = useState({});
-    const navigate = useNavigate();
+
+    const fields = [
+        { label: 'Full Name', key: 'name', type: 'text', helper: 'Your full name will not be publicly visible.' },
+        { label: 'Username', key: 'username', type: 'text' },
+        { label: 'Email', key: 'email', type: 'email' },
+        { label: 'Password', key: 'password', type: 'password', helper: 'Use at least 8 characters, including numbers and letters.' },
+        { label: 'Confirm Password', key: 'confirmPassword', type: 'password' }
+    ];
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -39,61 +48,81 @@ export default function Register({ onClose }) {
 
     function handleSubmit(e) {
         e.preventDefault();
+
         if (validateForm()) {
             const { name, username, email, password } = formData;
             registerAPICall({ name, username, email, password })
                 .then(() => {
-                    onClose();
+                    closeRegister();
                     navigate("/");
                 })
                 .catch(error => console.log(error));
         }
     }
 
-
     const modalContent = (
-        <div
-            className={styles.overlay}
-            onClick={onClose}
-        >
-            <div
-                className={styles.cardWrapper}
-                onClick={e => e.stopPropagation()}
-            >
-                <div className={styles.cardHeader}>
+        <div className={styles.overlay} onClick={closeRegister}>
+            <div className={styles.wrapper} onClick={e => e.stopPropagation()}>
+
+
+                <button onClick={closeRegister} className={styles.closeButton} aria-label="Close">
+                    <X className={styles.closeIcon} />
+                </button>
+
+                <div className={styles.header}>
                     <h2 className={styles.title}>Sign up</h2>
-                    <button onClick={onClose} className={styles.closeBtn}>
-                        <CloseIcon
-                            size={24}
-                            color={'#fff'}
-                        />
-                    </button>
                 </div>
+
                 <div className={styles.cardBody}>
                     <form onSubmit={handleSubmit} className={styles.form}>
-                        {['name', 'username', 'email', 'password', 'confirmPassword'].map(field => (
-                            <div key={field} className={styles.formGroup}>
-                                <label className={styles.label}>
-                                    {field === 'confirmPassword' ? 'Verify Password' : field.charAt(0).toUpperCase() + field.slice(1)}
-                                </label>
+                        {fields.map(({ label, key, type, helper }) => (
+                            <div key={key} className={styles.formGroup}>
                                 <input
-                                    type={field.includes('password') ? 'password' : field === 'email' ? 'email' : 'text'}
-                                    name={field}
+                                    type={type}
+                                    name={key}
                                     className={styles.input}
-                                    placeholder={`Enter ${field === 'confirmPassword' ? 'password again' : field}`}
-                                    value={formData[field]}
+                                    placeholder={label}
+                                    value={formData[key]}
                                     onChange={handleChange}
                                 />
-                                {formErrors[field] && <span className={styles.error}>{formErrors[field]}</span>}
+
+                                {formErrors[key] ? (
+                                    <span className={styles.error}>{formErrors[key]}</span>
+                                ) : (
+                                    <small className={styles.helperText}>{helper}</small>
+                                )}
                             </div>
                         ))}
-                        <div className={styles.submitWrapper}>
-                            <button type='submit' className={styles.submitBtn}>Submit</button>
+
+                        <div className={styles.signupText}>
+                            Are you already a member?{" "}
+                            <button
+                                type="button"
+                                className={styles.signupLink}
+                                onClick={() => {
+                                    closeRegister();
+                                    openLogin();
+                                }}
+                            >
+                                Log in
+                            </button>
                         </div>
+
+                        <div className={styles.submitWrapper}>
+                            <button
+                                type="submit"
+                                className={styles.submitBtn}
+                            >
+                                Submit
+                            </button>
+                        </div>
+
                     </form>
                 </div>
+
             </div>
         </div>
     );
+
     return ReactDOM.createPortal(modalContent, document.body);
 }

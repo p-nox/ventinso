@@ -7,6 +7,7 @@
   overflow-y: auto;
   background-color: var(--main-background-color);
   color: var(--text-color);
+
 }
 
 .messageRow {
@@ -228,4 +229,26 @@
   text-decoration: underline;
   cursor: pointer;
   font-size: 0.85rem;
+}
+
+
+.emptyMessages {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  color: white;
+}
+
+.emptyMessages h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.emptyMessages p {
+  font-size: 14px;
+  color: var(--text-muted);
 }

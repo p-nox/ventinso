@@ -7,7 +7,9 @@ export function ChatSidebar() {
     const { chats, selectedChat, setSelectedChat } = useChatUI ();
     return (
         <div className={styles.sidebar}>
+
             <div className={styles.sidebarHeader}>Chats</div>
+
             <ul className={styles.chatList}>
                 {chats.map((chat) => (
                     <ChatListItem
@@ -18,6 +20,7 @@ export function ChatSidebar() {
                     />
                 ))}
             </ul>
+            
         </div>
     );
 }

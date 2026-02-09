@@ -3,6 +3,6 @@
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  padding: 20px 0;
-  gap: 1%;
+  height: fit-content;
+  gap: 2rem; 
 }

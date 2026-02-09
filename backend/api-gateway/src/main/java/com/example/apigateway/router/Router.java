@@ -17,6 +17,8 @@ public class Router {
                 // HTTP routes
                 .route("notification_http", r -> r.path(ApiConfig.NOTIFICATION_SERVICE_URL + "/**")
                         .uri("lb://" + ApiConfig.NOTIFICATION_SERVICE))
+                .route("notification_http", r -> r.path(ApiConfig.NOTIFICATION_SETTINGS_SERVICE_URL + "/**")
+                        .uri("lb://" + ApiConfig.NOTIFICATION_SERVICE))
                 .route("auth_http", r -> r.path(ApiConfig.AUTH_SERVICE_URL + "/**")
                         .uri("lb://" + ApiConfig.AUTH_SERVICE))
                 .route("inventory_http", r -> r.path(ApiConfig.INVENTORY_SERVICE_URL + "/**")

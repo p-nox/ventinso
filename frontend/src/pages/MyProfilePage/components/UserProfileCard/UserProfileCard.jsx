@@ -3,14 +3,14 @@ import styles from "./UserProfileCard.module.css";
 import UserCard from "@components/Cards/UserCard/UserCard";
 import { UserPen, Calendar, Truck, ShoppingCart, Star, MessageCircle, Package } from "lucide-react";
 
-export default function UserProfileCard({ user }) {
+export default function UserProfileCard({ user, totalItems }) {
     return (
         <div className={styles.wrapper}>
             <Header user={user} />
             <Divider />
             <Bio user={user} iconSize={14} />
             <Divider />
-            <Stats user={user} iconSize={14} />
+            <Stats user={user} iconSize={14} totalItems={totalItems}/>
             {user.totalRatings > 0 && (
                 <>
                     <Divider />
@@ -86,7 +86,7 @@ function BioItem({ icon, iconStyle, label, value, fullWidth = false }) {
     );
 }
 
-function Stats({ user, iconSize }) {
+function Stats({ user, iconSize, totalItems }) {
     const overallPercentage =
         user.avgOverallRating != null && user.totalRatings
             ? `${Math.round((user.avgOverallRating / 4) * 100)}%`
@@ -97,7 +97,7 @@ function Stats({ user, iconSize }) {
             <StatItem
                 icon={<Package size={iconSize} />}
                 label="Listings"
-                value={user.items?.length || 0}
+                value={totalItems || 0}
             />
             <StatItem
                 icon={<ShoppingCart size={iconSize} />}

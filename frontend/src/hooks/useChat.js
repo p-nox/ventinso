@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { getUserChats, getChatMessages, initChat } from "@services/ChatService";
 import { useAuth } from "@context/AuthContext";
 import { useChatSocketContext } from "@context/ChatWebSocketContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Paths } from "@config/Config";
 
 export function useChat() {
-    const { userId, username } = useAuth();
+    const { userId, username, userAvatar } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
     const { messages: wsMessages, sendMessage } = useChatSocketContext();
 
@@ -28,8 +30,11 @@ export function useChat() {
     useEffect(() => {
         if (!userId) return;
 
+        let isMounted = true;
+
         getUserChats(userId)
             .then(data => {
+                if (!isMounted) return;
                 setChats(data);
 
                 // Open or create chat from navigation state if not already opened
@@ -42,7 +47,8 @@ export function useChat() {
                             receiverAvatar: navChat.receiverAvatar,
                             itemId: navChat.itemId,
                             thumbnailUrl: navChat.itemThumbnail,
-                            title: navChat.itemTitle
+                            title: navChat.itemTitle,
+                            itemOwnerId: navChat.itemOwnerId
                         },
                         data
                     );
@@ -55,14 +61,19 @@ export function useChat() {
                 }
             })
             .catch(err => console.error("[useChat] Error loading chats:", err));
+
+        return () => { isMounted = false };
     }, [userId, tempChat]);
 
     // load messages for selected chat
     useEffect(() => {
-        if (!selectedChat?.chatId || selectedChat?.isTemp) return;
+        if (!selectedChat?.chatId || selectedChat?.isTemp || !userId) return;
+
+        let isMounted = true;
 
         getChatMessages(selectedChat.chatId, userId)
             .then(messages => {
+                if (!isMounted) return;
                 setMessagesByChat(prev => ({
                     ...prev,
                     [selectedChat.chatId]: messages
@@ -77,6 +88,7 @@ export function useChat() {
         if (!userId || !wsMessages) return;
         wsMessages.forEach(wsMsg => {
             const { chatId, messageResponse } = wsMsg;
+
 
             if (!chatId || !messageResponse) return;
 
@@ -126,9 +138,19 @@ export function useChat() {
     };
     const handleMinimize = () => setIsMinimized(true);
     const handleRestore = () => setIsMinimized(false);
-    const handleFullView = () => setIsFullView(prev => !prev);
+    const handleFullView = (chat) => {
 
+        setIsOpen(false);
+        setIsMinimized(false);
 
+        if (chat?.chatId) {
+            navigate(Paths.CHAT_FULL + `?chatId=${chat.chatId}`);
+        } else if (chat?.isTemp) {
+            navigate(Paths.CHAT_FULL + `?temp=true`);
+        } else {
+            navigate(Paths.CHAT_FULL);
+        }
+    };
 
 
     const openOrCreateChat = ({ receiverId, receiverUsername, receiverAvatar, itemId, thumbnailUrl, title, price }, chatsList) => {
@@ -153,6 +175,7 @@ export function useChat() {
                 receiverId,
                 senderId: userId,
                 itemId,
+                itemOwnerId: receiverId,
                 receiverUsername,
                 receiverAvatar,
                 thumbnailUrl,
@@ -160,7 +183,7 @@ export function useChat() {
                 price,
                 isTemp: true,
             };
-            console.log("temp chat:", newTempChat);
+           
             setTempChat(newTempChat);
             setSelectedChat(newTempChat);
             return newTempChat;
@@ -190,7 +213,7 @@ export function useChat() {
         let receiverId = currentChat.receiverId;
         let itemId = currentChat.itemId;
         let senderUsername = username;
-        let senderAvatar = currentChat.receiverAvatar;
+        let senderAvatar = userAvatar;
         let receiverUsername = currentChat.receiverUsername;
         let receiverAvatar = currentChat.receiverAvatar;
 
@@ -221,7 +244,6 @@ export function useChat() {
 
             addNewChat(chatForSidebar);
         } else {
-            // --- Αν είναι ήδη υπαρκτό chat: στείλε κατευθείαν το message ---
             sendMessage({
                 content: String(message.content),
                 receiverId,
@@ -230,26 +252,6 @@ export function useChat() {
                 type: "OFFER"
             });
         }
-
-        const actualChatId = chatIdToUse;
-
-
-        setMessagesByChat(prev => ({
-            ...prev,
-            [actualChatId]: [
-                ...(prev[actualChatId] || []),
-                {
-                    id: `temp-${Date.now()}`, // προσωρινό id
-                    userId: Number(userId),
-                    avatarUrl: currentChat.receiverAvatar,
-                    content: message.content,
-                    type: message.type,
-                    isReadByReceiver: false,
-                    timestamp: new Date().toISOString()
-                }
-            ]
-        }));
-
     };
 
 

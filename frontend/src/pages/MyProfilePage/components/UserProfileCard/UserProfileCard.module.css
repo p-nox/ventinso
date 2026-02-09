@@ -48,7 +48,7 @@
     display: inline-flex;
     vertical-align: middle;
     margin-bottom: 5%;
-    color: var(--primary-color);
+    color: var(--text-color);
 }
 
 .ratings {

@@ -6,6 +6,7 @@ import com.example.inventory_preview_service.repository.PreviewRepository;
 import com.example.inventory_preview_service.utils.Mapper;
 import com.example.inventory_service.event.ItemCreateUpdateEvent;
 import com.example.inventory_preview_service.event.UserLookUpEvent;
+import com.example.inventory_service.event.WatcherUpdateEvent;
 import com.example.user_service.event.UserRatingUpdateEvent;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,8 +103,6 @@ public class PreviewServiceImpl implements PreviewService {
     }
 
 
-
-
     @Override
     public List<ItemCardResponse> getItemsByFilters(
             String q,
@@ -192,6 +191,7 @@ public class PreviewServiceImpl implements PreviewService {
         if (event.getOpenToOffers() != null) item.setOpenToOffers(event.getOpenToOffers());
         if (event.getPickUpByAppointment() != null) item.setPickUpByAppointment(event.getPickUpByAppointment());
 
+
         previewRepository.save(item);
     }
 
@@ -247,7 +247,12 @@ public class PreviewServiceImpl implements PreviewService {
         return convertToDtoList(entities);
     }
 
-
+    @Override
+    public void updateItemWatchers(WatcherUpdateEvent event) {
+        Query query = new Query(Criteria.where("_id").is(String.valueOf(event.getItemId())));
+        Update update = new Update().set("watchers", event.getWatchers());
+        mongoTemplate.updateFirst(query, update, ItemPreview.class);
+    }
 
     private List<ItemCardResponse> convertToDtoList(List<ItemPreview> items){
         return  items.stream().map(mapper::toDto).toList();

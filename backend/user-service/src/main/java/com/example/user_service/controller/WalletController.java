@@ -1,7 +1,7 @@
 package com.example.user_service.controller;
 
-import com.example.user_service.dto.TransferRequest;
-import com.example.user_service.dto.WalletResponse;
+import com.example.user_service.dto.request.TransferRequest;
+import com.example.user_service.dto.response.WalletResponse;
 import com.example.user_service.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

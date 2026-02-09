@@ -17,6 +17,6 @@ public class NewUserEvent {
     private String name;
     private String username;
     private String email;
-    private UserStatus status;
+    private String status;
     private LocalDateTime registeredAt;
 }

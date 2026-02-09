@@ -6,10 +6,10 @@ const { handle: handleAggregated } = createApiClient(API_URLS.AGGREGATED);
 const { handle: handleRatings } = createApiClient(API_URLS.RATING);
 const { handle: handleWallet } = createApiClient(API_URLS.WALLET);
 
-export const getUser = (id, includeHidden = false) =>
+export const getUser = (id, includeHiddenItems = false) =>
   handleAggregated(api =>
     api.get(`/user/${id}`, {
-      params: { includeHidden }
+      params: { includeHiddenItems }
     })
   );
 

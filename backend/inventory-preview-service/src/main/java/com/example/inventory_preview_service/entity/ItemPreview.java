@@ -35,6 +35,9 @@ public class ItemPreview {
 
     private String type;    // Buy, Sell
 
+    @Builder.Default
+    private Long watchers = 0L;
+
     @TextIndexed
     private String category;
 

@@ -5,11 +5,12 @@ export function useNavbar(setShowSearch) {
   const [username, setUsername] = useState(null);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
-
   const { notifications, setNotifications } = useContext(NotificationSseContext);
-
   const accountMenuRef = useRef(null);
   const notificationMenuRef = useRef(null);
+
+
+  const toggleSearch = () => setShowSearch(prev => !prev); // is used?
 
   useEffect(() => {
     setUsername(localStorage.getItem('authenticatedUser'));
@@ -29,15 +30,22 @@ export function useNavbar(setShowSearch) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleSearch = () => setShowSearch(prev => !prev);
   
-  const toggleAccountMenu = () => {
-    setIsAccountMenuOpen(prev => !prev);
+  const toggleAccountMenu = (open) => {
+    if (typeof open === "boolean") {
+      setIsAccountMenuOpen(open);
+    } else {
+      setIsAccountMenuOpen(prev => !prev);
+    }
     setIsNotificationMenuOpen(false);
   };
 
-  const toggleNotificationMenu = () => {
-    setIsNotificationMenuOpen(prev => !prev);
+  const toggleNotificationMenu = (open) => {
+    if (typeof open === "boolean") {
+      setIsNotificationMenuOpen(open);
+    } else {
+      setIsNotificationMenuOpen(prev => !prev);
+    }
     setIsAccountMenuOpen(false);
   };
 

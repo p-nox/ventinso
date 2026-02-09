@@ -22,7 +22,11 @@ build/
 *.iml
 
 # Uploads (user avatars, item images)
-./uploads/
+uploads/
 
 # Environment files
-backend/config/.env
+config/.env
+
+AGENTS.md
+
+

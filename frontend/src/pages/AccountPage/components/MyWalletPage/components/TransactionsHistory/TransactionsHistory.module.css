@@ -1,0 +1,97 @@
+.wrapper {
+  width: 100%;
+  min-height: 300px;
+}
+
+.header {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.transactionList {
+  display: flex;
+  flex-direction: column;
+}
+
+.transactionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 2px;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.transactionItem:last-child {
+  border-bottom: none;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.title {
+  font-weight: bold;
+  color: var(--text-color-label);
+}
+
+.txId {
+  color: var(--text-label-color);
+}
+
+.status {
+  font-size: 0.9rem;
+}
+
+.pending {
+  color: var(--status-pending);
+}
+
+.failed {
+  color: var(--status-failed);
+}
+
+.completed {
+  color: var(--status-completed);
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.amount {
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.date {
+  font-size: 0.85rem;
+  color: var(--text-color-muted);
+}
+
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin: 0 0.3em 0.3em 0;
+  cursor: default;
+}
+
+.emptyState {
+  margin-top: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color-muted);
+  font-size: 1.5rem;
+  text-align: center;
+}

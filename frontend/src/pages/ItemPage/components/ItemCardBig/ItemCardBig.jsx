@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ItemCardBig.module.css';
-import { Tag } from '@components/ui';
 import FavoriteButton from '@components/Buttons/FavoriteButton/FavoriteButton';
-import { API_BASE_URL } from '@config/Config';
-import { useAuth } from '@context/AuthContext';
-import { ImageLightBox } from '@components/ui';
+import { API_URLS } from '@config/Config';
+import { ImageLightBox, Tag } from '@components/ui';
+import { Euro } from "lucide-react";
 
-export default function ItemCardBig({ item }) {
-  const { userId, watchlist } = useAuth();
+export default function ItemCardBig({ item, itemOwnerId }) {
   const [mainImage, setMainImage] = useState('');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [watchersCount, setWatchersCount] = useState(item.watchersCount);
-
-  const isFavorite = watchlist.includes(Number(item.id));
-  const isOwner = Number(userId) === Number(item.userId);
 
   useEffect(() => {
     setIsLightboxOpen(false);
     if (item.imageUrls?.length > 0) {
       setMainImage(
         item.thumbnailUrl
-          ? `${API_BASE_URL}${item.thumbnailUrl}`
-          : `${API_BASE_URL}${item.imageUrls[0]}`
+          ? API_URLS.IMAGE_FILE(item.thumbnailUrl)
+          : API_URLS.IMAGE_FILE(item.imageUrls[0])
       );
       setCurrentIndex(0);
     }
@@ -49,52 +43,60 @@ export default function ItemCardBig({ item }) {
     );
   };
 
+
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <p className={styles.text}>{item.title}</p>
-        <p className={styles.text}>{item.price}€</p>
+
+        <p className={styles.price}>
+          <span className={styles.priceText}>{item.price}</span>
+          <Euro className={styles.priceIcon} />
+        </p>
       </div>
+
       <Tag value={item.condition} fontSize="0.8rem" margin="0px 0px 0px 6px" />
+
       <div className={styles.imageContainer}>
+
         <div className={styles.mainImageWrapper}>
-          {!isOwner && (
-            <div
-              className={styles.favoriteWrapper}
-              style={{ borderRadius: watchersCount > 0 ? '100px' : '50%' }}
-            >
-              <FavoriteButton
-                itemId={item.id}
-                initialFilled={isFavorite}
-                watchersCount={watchersCount}
-                setWatchersCount={setWatchersCount}
-                variant="bigCard"
-              />
-              {watchersCount > 0 && (
-                <div className={styles.watcherBadge}>{watchersCount}</div>
-              )}
-            </div>
-          )}
-          <img
-            src={mainImage}
-            alt={item.title}
-            className={styles.mainImage}
-            onClick={() => openLightbox(currentIndex)}
+
+          <FavoriteButton
+            itemId={item.itemId}
+            watchers={item.watchers}
+            itemOwnerId={itemOwnerId}
           />
+
+          {item.status === "SOLD" && (
+            <div className={styles.soldTag}>SOLD</div>
+          )}
+          {mainImage && (
+            <img
+              src={mainImage}
+              alt={item.title}
+              className={styles.mainImage}
+              onClick={() => openLightbox(currentIndex)}
+            />
+          )}
+
         </div>
 
         <div className={styles.thumbnailContainer}>
+
           {item.imageUrls.map((url, idx) => (
             <img
               key={idx}
-              src={`${API_BASE_URL}${url}`}
+              src={API_URLS.IMAGE_FILE(url)}
               alt={`Thumbnail ${idx}`}
               className={styles.thumbnail}
               onClick={() => openLightbox(idx)}
-              onMouseEnter={() => setMainImage(`${API_BASE_URL}${url}`)}
+              onMouseEnter={() => setMainImage(API_URLS.IMAGE_FILE(url))}
             />
           ))}
+
         </div>
+
       </div>
 
       <div className={styles.description}>
@@ -103,16 +105,17 @@ export default function ItemCardBig({ item }) {
 
       {isLightboxOpen && (
         <ImageLightBox
-          images={item.imageUrls.map((url) => `${API_BASE_URL}${url}`)}
+          images={item.imageUrls.map((url) => API_URLS.IMAGE_FILE(url))}
           startIndex={currentIndex}
           isOpen={isLightboxOpen}
           onClose={closeLightbox}
           onNext={nextImage}
           onPrev={prevImage}
-          thumbnailSrc={`${API_BASE_URL}${item.imageUrls[currentIndex]}`}
+          thumbnailSrc={API_URLS.IMAGE_FILE(item.imageUrls[currentIndex])}
           thumbnailAlt={item.title}
         />
       )}
+
     </div>
   );
 }

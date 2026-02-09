@@ -6,42 +6,39 @@ export default function EvaluationCard({ ratings, setRatings, comment, setCommen
     const [submitted, setSubmitted] = useState(false);
     const readOnly = loaded || submitted || disabled;
 
-    function handleRatingChange(field) {
-        return (e) => {
-            const val = e.target.value ? parseInt(e.target.value) : null;
-            setRatings((prev) => ({ ...prev, [field]: val }));
-        };
-    }
+    const handleRatingChange = (field) => (e) => {
+        const val = e.target.value ? parseInt(e.target.value) : null;
+        setRatings(prev => ({ ...prev, [field]: val }));
+    };
 
-    function handleSubmit() {
+    const handleSubmit = () => {
         onSubmit();
         setSubmitted(true);
-    }
+    };
 
-    function displayRating(value) {
-        switch (value) {
-            case 1: return 'Poor';
-            case 2: return 'Good';
-            case 3: return 'Very Good';
-            case 4: return 'Excellent';
-            default: return '-';
-        }
-    }
+    const displayRating = (value) => {
+        const labels = ['-', 'Poor', 'Good', 'Very Good', 'Excellent'];
+        return labels[value] || '-';
+    };
 
     return (
-        <div className={styles.wrapper}>
-            <h3>Evaluation</h3>
+        <div className={styles.card}>
+            <h3 className={styles.title}>Evaluation</h3>
 
             {['description', 'packaging', 'condition'].map(field => (
                 <div key={field} className={styles.row}>
-                    <label>
+                    <label className={styles.label}>
                         {field === 'description' ? 'Listing description:' :
                             field === 'packaging' ? 'Packaging:' : 'Listing condition:'}
                     </label>
                     {readOnly ? (
-                        <span>{displayRating(ratings[field])}</span>
+                        <span className={styles.value}>{displayRating(ratings[field])}</span>
                     ) : (
-                        <select value={ratings[field] ?? ''} onChange={handleRatingChange(field)}>
+                        <select
+                            value={ratings[field] ?? ''}
+                            onChange={handleRatingChange(field)}
+                            className={styles.select}
+                        >
                             <option value="" disabled hidden>Select</option>
                             <option value={1}>Poor</option>
                             <option value={2}>Good</option>
@@ -52,19 +49,20 @@ export default function EvaluationCard({ ratings, setRatings, comment, setCommen
                 </div>
             ))}
 
-            <div className={styles.evaluationRow}>
-                {(readOnly || submitted) && <label>Comment</label>}
+            <div className={styles.commentRow}>
+                {(readOnly || submitted) && <label className={styles.label}>Comment</label>}
                 {readOnly ? (
-                    <span>{comment || '-'}</span>
+                    <span className={styles.commentValue}>{comment || '-'}</span>
                 ) : (
                     <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
                         rows={3}
                         placeholder="Leave your comment here..."
-                        className={styles.commentBox}
+                        className={styles.textarea}
                     />
                 )}
+
             </div>
 
             {!readOnly && (
@@ -74,7 +72,6 @@ export default function EvaluationCard({ ratings, setRatings, comment, setCommen
                     variant="submit"
                     width="40%"
                 />
-
             )}
         </div>
     );

@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import styles from "./AccountInfo.module.css";
 import { useAuth } from "@context/AuthContext";
 import UserCard from "@components/Cards/UserCard/UserCard";
-import { EditIcon } from "@assets/icons";
 import { useAccountInfo } from "@hooks/useAccountInfo";
 import Button from "@components/Buttons/Button/Button";
 import axios from "axios";
-import { API_BASE_URL } from "@config/Config";
-import { CheckCircle, X } from "lucide-react";
+import { API_BASE_URL, API_URLS } from "@config/Config";
+import { CheckCircle, X, Pencil } from "lucide-react";
 
 export default function AccountInfo() {
     const { userId } = useAuth();
@@ -23,11 +22,16 @@ export default function AccountInfo() {
         updateAvatar
     } = useAccountInfo(userId);
 
-    const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || null);
+    const [avatarUrl, setAvatarUrl] = useState(null);
+    const { setUserAvatar } = useAuth();
+
 
     useEffect(() => {
-        setAvatarUrl(user.avatarUrl || null);
-    }, [user.avatarUrl]);
+        if (user?.avatarUrl) {
+            setAvatarUrl(user.avatarUrl);
+        }
+    }, [user]);
+
 
     const fields = [
         { label: "Name", key: "name", editable: true },
@@ -52,29 +56,33 @@ export default function AccountInfo() {
             );
 
             let avatarFileName = response.data.avatarUrl;
-            console.log("Avatar filename from response:", avatarFileName);
+                    
             if (avatarFileName) {
-                if (!avatarFileName.startsWith("/api/users")) {
-                    avatarFileName = `/api/users/${avatarFileName}`;
-                }
-                const newAvatarUrl = `${API_BASE_URL}${avatarFileName}?t=${Date.now()}`;
-                console.log("New avatar from backend:", newAvatarUrl);
+              
+                const newAvatarUrl = `${API_URLS.AVATAR_FILE(avatarFileName)}?t=${Date.now()}`;
 
                 setAvatarUrl(newAvatarUrl);   // preview
                 updateAvatar(avatarFileName); // user state
+                console.log("new avatar", avatarFileName);
+                setUserAvatar(newAvatarUrl); // navbar icon
+                localStorage.setItem("userAvatar", newAvatarUrl);
             }
         } catch (err) {
             console.error("Failed to upload avatar:", err);
         }
     };
 
+    
+
+    
+
     return (
         <div className={styles.wrapper}>
             <UserCard
                 avatarUrl={avatarUrl}
                 username={user.username}
-                sales={user.sales}
                 totalSales={user.totalSales}
+                sales={user.sales}
                 registeredAt={user.registrationDate}
                 userId={userId}
                 showExtraInfo={false}
@@ -122,7 +130,8 @@ export default function AccountInfo() {
                         ) : (
                             <>
                                 <span className={styles.value}>{user[key]}</span>
-                                {editable && <EditIcon size={20} color="currentColor" />}
+                                {editable && <Pencil size={18} className={styles.editIcon} />}
+
                             </>
                         )}
                     </div>

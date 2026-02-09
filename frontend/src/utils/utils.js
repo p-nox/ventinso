@@ -1,10 +1,45 @@
 export function formatText(value) {
-    if (!value) return "";
-    const words = value.toLowerCase().split("_");
-    if (words.length === 0) return "";
-    words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1);
-    return words.join(" ");
+  if (!value) return "";
+
+  const words = value.toLowerCase().split("_");
+
+  const capitalized = words.map(word =>
+    word.charAt(0).toUpperCase() + word.slice(1)
+  );
+
+  return capitalized.join(" ");
 }
+
+
+export function timeAgo(dateInput) {
+  if (!dateInput) return "";
+
+  const now = new Date();
+  const date = new Date(dateInput);
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) return "just now";
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} d ago`;
+
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks} w ago`;
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} mo ago`;
+
+  const years = Math.floor(days / 365);
+  return `${years} y ago`;
+}
+
+
 
 export function getRelativeTime(date) {
     if (!date) return '';

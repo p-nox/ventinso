@@ -14,7 +14,11 @@ import java.util.List;
 @Repository
 public interface InventoryRepository extends JpaRepository<Item, Long> {
 
-    List<Item> findAllByUserId(Long usedId);
+    List<Item> findAllByUserIdAndStatus(Long userId,ItemStatus status);
+
+    List<Item> findAllByUserIdAndStatusAndIdNot(Long userId, ItemStatus status, Long excludeItemId);
+
+    List<Item> findAllByUserId(Long userId);
 
     @Modifying
     @Transactional
@@ -30,5 +34,9 @@ public interface InventoryRepository extends JpaRepository<Item, Long> {
     @Transactional
     @Query("UPDATE Item i SET i.watchersCount = i.watchersCount + :delta WHERE i.id = :itemId")
     void updateWatchersCount(@Param("itemId") Long itemId, @Param("delta") int delta);
+
+    @Query("SELECT i.watchersCount FROM Item i WHERE i.id = :itemId")
+    Long getWatchersCount(@Param("itemId") Long itemId);
+
 
 }

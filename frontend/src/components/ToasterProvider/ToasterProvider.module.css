@@ -1,0 +1,63 @@
+/* ToasterProvider.module.css */
+.toast {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  top: 30px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: relative;
+  margin: 8px 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.iconSvg {
+  width: 20px;
+  height: 20px;
+}
+
+.message {
+  flex: 1;
+  margin-left: 12px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.timerLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: left;
+  animation: shrink linear forwards;
+  border-radius: 0 0 8px 8px; /* λίγο στρογγυλεμένο κάτω */
+}
+
+/* Toast backgrounds */
+.success { background-color: #A7F3D0; } /* light-medium green */
+.error   { background-color: #FA9090; } /* light-medium red */
+.info    { background-color: #93C5FD; } /* light-medium blue */
+
+/* Timeline colors (σκουρότερα) */
+.success .timerLine { background-color: #059669; } /* σκουρότερο πράσινο */
+.error .timerLine   { background-color: #b91c1c; } /* σκουρότερο κόκκινο */
+.info .timerLine    { background-color: #1e40af; } /* σκουρότερο μπλε */
+
+
+@keyframes shrink {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}

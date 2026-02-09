@@ -1,21 +1,25 @@
 package com.example.inventory_service.service.implementation;
 
-import com.example.inventory_service.dto.CategoryResponse;
-import com.example.inventory_service.dto.CreateUpdateItemRequest;
-import com.example.inventory_service.dto.ItemResponse;
+import com.example.inventory_service.dto.response.CategoryResponse;
+import com.example.inventory_service.dto.request.CreateUpdateItemRequest;
+import com.example.inventory_service.dto.response.ItemPageResponse;
+import com.example.inventory_service.dto.response.ItemSummaryResponse;
 import com.example.inventory_service.entity.Category;
 import com.example.inventory_service.entity.Item;
+import com.example.inventory_service.entity.ItemViewKey;
+import com.example.inventory_service.entity.ItemViews;
 import com.example.inventory_service.enums.ItemStatus;
 import com.example.inventory_service.event.ItemCreateUpdateEvent;
 import com.example.inventory_service.event.PriceUpdateEvent;
+import com.example.inventory_service.event.WatcherUpdateEvent;
 import com.example.inventory_service.exception.ResourceNotFoundException;
 import com.example.inventory_service.repository.CategoryRepository;
 import com.example.inventory_service.repository.InventoryRepository;
+import com.example.inventory_service.repository.ItemViewsRepository;
 import com.example.inventory_service.service.ImageStorageService;
 import com.example.inventory_service.service.InventoryService;
 import com.example.inventory_service.utils.Mapper;
 import com.example.order_service.event.OrderEvent;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +27,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,25 +39,55 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final CategoryRepository categoryRepository;
+    private final ItemViewsRepository itemViewsRepository;
     private final ImageStorageService imageStorageService;
     private final Mapper mapper;
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public ItemResponse getItemById(Long itemId) {
+    public ItemPageResponse getItemById(Long itemId, Long userId, boolean fetchOtherActiveItems) {
         Item item = findItemById(itemId);
-        incrementViewCount(item);
-        ItemResponse response = mapper.toDto(item);
-        List<String> imageUrls = imageStorageService.getImageUrlsForItem(response.getId());
-        response.setImageUrls(imageUrls);
-        String thumbnailUrlToMatch = imageStorageService.getThumbnailForItem(itemId);
+        log.info("item" + item);
+        if (userId != null) incrementViewCount(item, userId);
+        ItemPageResponse response = mapper.toDto(item);
+        log.info("response" + response);
+        populateImages(response);
 
-        String thumbnailUrl = imageUrls.stream()
-                .filter(url -> url.equals(thumbnailUrlToMatch))
-                .findFirst()
-                .orElse(null);
-        response.setThumbnailUrl(thumbnailUrl);
+
+        if(fetchOtherActiveItems){
+            List<ItemSummaryResponse> previews = getAllOtherActiveItemsForUserId( response.getUserId(), response.getItemId());
+            response.setListOfUserItems(previews);
+            if( item.getStatus().equals(ItemStatus.SOLD)){
+                response.setTotalItems(previews.size()); // if the requested item is Sold the available item must not been included
+            }
+            else {
+                response.setTotalItems(previews.size() + 1); // +1 for the requested item
+            }
+
+        }
         return response;
+    }
+
+    @Override
+    public List<ItemSummaryResponse> getAllItemsByUserId(Long userId, boolean includeHiddenItems) {
+        List<Item> items;
+
+        if (includeHiddenItems) {
+            items = inventoryRepository.findAllByUserId(userId);
+        } else {
+            items = inventoryRepository.findAllByUserIdAndStatus(userId, ItemStatus.ACTIVE);
+        }
+        return mapItemsToDtoWithThumbnail(items);
+    }
+
+    @Override
+    public List<ItemSummaryResponse> getAllOtherActiveItemsForUserId(Long userId, Long excludeItemId) {
+        List<Item> items = inventoryRepository.findAllByUserIdAndStatusAndIdNot(
+                userId,
+                ItemStatus.ACTIVE,
+                excludeItemId
+        );
+        return mapItemsToDtoWithThumbnail(items);
     }
 
     @Override
@@ -64,6 +100,7 @@ public class InventoryServiceImpl implements InventoryService {
     public void createItem(CreateUpdateItemRequest request, List<MultipartFile> itemImages) {
         try {
             Item item = mapper.toEntity(request);
+
             Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Category not found"));
 
@@ -86,6 +123,7 @@ public class InventoryServiceImpl implements InventoryService {
     public void deleteItem(Long itemId) {
         inventoryRepository.deleteByIdDirectly(itemId);
         imageStorageService.deleteImagesForItem(itemId);
+        itemViewsRepository.deleteViewsForItem(itemId);
         kafkaTemplate.send("inventory.item.deleted",itemId);
     }
 
@@ -114,6 +152,7 @@ public class InventoryServiceImpl implements InventoryService {
         String thumbnail = imageStorageService.getThumbnailForItem(itemId);
         log.info("Thumbnail after saving images: {}", thumbnail);
 
+
         ItemCreateUpdateEvent itemUpdateEvent = mapper.toEvent(savedItem);
         itemUpdateEvent.setThumbnailUrl(thumbnail);
         log.info("ItemUpdateEvent to send: {}", itemUpdateEvent);
@@ -126,6 +165,7 @@ public class InventoryServiceImpl implements InventoryService {
                     .title(savedItem.getTitle())
                     .price(savedItem.getPrice())
                     .oldPrice(oldPrice)
+                    .thumbnail(thumbnail)
                     .action("PRICE_UPDATE")
                     .build();
             log.info("PriceUpdateEvent to send: {}", priceUpdateEvent);
@@ -160,8 +200,14 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void updateWatchersCount(Long itemId, int delta) {
-        log.info("Updating watchers count for itemId={} with delta={}", itemId, delta);
         inventoryRepository.updateWatchersCount(itemId, delta);
+
+        Long watchers = inventoryRepository.getWatchersCount(itemId);
+        WatcherUpdateEvent watcherUpdateEvent = WatcherUpdateEvent.builder()
+                .itemId(itemId)
+                .watchers(watchers)
+                .build();
+        kafkaTemplate.send("inventory.item.watchers.updated", watcherUpdateEvent);
     }
 
     @Override
@@ -179,9 +225,6 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     @Override
     public boolean isItemValid(Item item, OrderEvent event) {
-        log.info("Validating item: id={}, title={}, status={}, userId={}, eventId={}, eventSellerId={}, eventPrice={}, orderType={}",
-                item.getId(), item.getTitle(), item.getStatus(), item.getUserId(),
-                event.getId(), event.getSellerId(), event.getPrice(), event.getOrderType());
 
         boolean statusMatches = ItemStatus.ACTIVE.equals(item.getStatus());
         boolean sellerMatches = item.getUserId().equals(event.getSellerId());
@@ -192,18 +235,13 @@ public class InventoryServiceImpl implements InventoryService {
             priceMatches = item.getPrice().compareTo(event.getPrice()) == 0;
         }
 
-        log.info("Validation details for itemId {}: statusMatches={}, sellerMatches={}, priceMatches={}",
-                item.getId(), statusMatches, sellerMatches, priceMatches);
-
         boolean isValid = statusMatches && sellerMatches && priceMatches;
 
         if (isValid) {
-            log.info("Item {} is valid. Reserving and updating status to RESERVED.", item.getId());
             item.setStatus(ItemStatus.RESERVED);
             Item savedItem = inventoryRepository.saveAndFlush(item);
 
             ItemCreateUpdateEvent itemUpdateEvent = mapper.toEvent(savedItem);
-            log.info("Sending Kafka event 'inventory.item.updated' for itemId={}", savedItem.getId());
             kafkaTemplate.send("inventory.item.updated", itemUpdateEvent);
         } else {
             log.warn("Item {} is not valid for OrderEvent {}.", item.getId(), event.getId());
@@ -211,8 +249,6 @@ public class InventoryServiceImpl implements InventoryService {
 
         return isValid;
     }
-
-
 
     @Override
     public Item findItemById(Long itemId){
@@ -225,8 +261,48 @@ public class InventoryServiceImpl implements InventoryService {
         return entities.stream().map(mapper).toList();
     }
 
-    private void incrementViewCount(Item item) {
-        item.setViews(item.getViews() + 1);
-        inventoryRepository.save(item);
+    private void incrementViewCount(Item item, Long userId) {
+        ItemViewKey key = new ItemViewKey(item.getId(), userId);
+
+        if (!itemViewsRepository.existsById(key)) {
+            ItemViews view = new ItemViews();
+            view.setId(key);
+            itemViewsRepository.save(view);
+
+            if(!item.getUserId().equals(userId)) {
+                item.setViews(item.getViews() + 1);
+                inventoryRepository.save(item);
+            }
+        }
     }
+
+    private void populateImages(ItemPageResponse response) {
+        List<String> imageUrls = imageStorageService.getImageUrlsForItem(response.getItemId());
+        response.setImageUrls(imageUrls);
+
+        String thumbnailUrlToMatch = imageStorageService.getThumbnailForItem(response.getItemId());
+        String thumbnailUrl = imageUrls.stream()
+                .filter(url -> url.equals(thumbnailUrlToMatch))
+                .findFirst()
+                .orElse(null);
+        response.setThumbnailUrl(thumbnailUrl);
+
+        log.info("Set {} images and thumbnail for itemId={}", imageUrls.size(), response.getItemId());
+    }
+
+    private List<ItemSummaryResponse> mapItemsToDtoWithThumbnail(List<Item> items) {
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return items.stream()
+                .map(mapper::toListDto)
+                .peek(dto -> {
+                    String thumbnail = imageStorageService.getThumbnailForItem(dto.getItemId());
+                    dto.setThumbnailUrl(thumbnail != null ? thumbnail : "");
+                })
+                .collect(Collectors.toList());
+    }
+
+
 }

@@ -1,35 +1,35 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { API_BASE_URL, Paths } from "@config/Config.js";
+import { API_URLS, Paths } from "@config/Config.js";
 import styles from './OrderDetails.module.css'
 import { Tag } from "@components/ui";
 import { formatStatus, formatDateTime } from '@utils/utils';
 
 export default function OrderDetails({ order }) {
+
+    console.log("Rendering OrderDetails with order:", order);
+
     return (
         <div className={styles.wrapper}>
 
-            <div className={styles.topInfo}>
-                <Link
-                    to={Paths.PROFILE(order.sellerId)}
-                    className={styles.userLink}
-                >
-                    <strong>{order.sellerUsername}</strong>
-                </Link>
-                <Tag
-                    value={order.status}
-                    fontSize="0.9rem"
-                    type="tag"
-                    formatFn={formatStatus}
-                />
-            </div>
+            <Tag
+                value={order.status}
+                fontSize="0.9rem"
+                type="tag"
+                formatFn={formatStatus}
+                className={styles.topRight}
+            />
 
-            <div className={styles.middleInfo}>
+            <div className={styles.topInfo}>
                 <OrderTimeline
                     paidAt={order.paidAt}
                     sentAt={order.sentAt}
                     arrivedAt={order.arrivedAt}
                 />
+
+            </div>
+
+            <div className={styles.middleInfo}>
                 <ItemDetails order={order} />
             </div>
 
@@ -56,17 +56,32 @@ function OrderTimeline({ paidAt, sentAt, arrivedAt }) {
     const timelineItems = [
         { label: "Paid", value: paidAt },
         { label: "Sent", value: sentAt },
-        { label: "Arrived", value: arrivedAt }
+        { label: "Arrived", value: arrivedAt },
     ];
 
     return (
         <div className={styles.timelineContainer}>
-            {timelineItems.map((item, idx) => (
-                <div key={idx} className={styles.timelineItem}>
-                    {item.label}:{" "}
-                    {item.value ? formatDateTime(item.value) : "Pending"}
-                </div>
-            ))}
+            {timelineItems.map((item, idx) => {
+                const filled = Boolean(item.value);
+                return (
+                    <div
+                        key={idx}
+                        className={`${styles.timelineItem} ${filled ? styles.filled : ""}`}
+                    >
+                        <div className={styles.dot}></div>
+                        <span className={styles.label}>
+                            {item.label}
+                            {item.value ? `: ${formatDateTime(item.value)}` : ": Pending"}
+                        </span>
+                        {idx < timelineItems.length - 1 && (
+                            <div
+                                className={`${styles.connector} ${filled ? styles.filledConnector : ""
+                                    }`}
+                            ></div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -75,26 +90,22 @@ function ItemDetails({ order }) {
     return (
         <div className={styles.itemContainer}>
             <img
-                src={`${API_BASE_URL}${order.thumbnailUrl}`}
+                src={API_URLS.IMAGE_FILE(order.thumbnailUrl)}
                 alt={`Image of ${order.itemTitle}`}
             />
             <div className={styles.itemDetails}>
                 <div className={styles.titleRow}>
-                    <Link
-                        to={Paths.ITEM(order.itemId)}
-                        className={`${styles.userLink} ${styles.itemName}`}
-                    >
+                    <Link to={Paths.ITEM(order.itemId)} className={`${styles.userLink} ${styles.itemName}`}>
                         {order.itemTitle}
                     </Link>
                     <span className={styles.itemPrice}>{order.price}€</span>
                 </div>
                 <p className={styles.itemCondition}>
-                    Condition:
                     <Tag
-                        value={order.itemCondition} 
+                        value={order.itemCondition}
                         fontSize="0.8rem"
                         type="tag"
-                        margin = "auto 0px auto 0px"                
+                        margin="auto 0px auto 0px"
                     />
                 </p>
             </div>

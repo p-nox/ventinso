@@ -1,7 +1,7 @@
 package com.example.notification_service.controller;
 
 import com.example.notification_service.dto.NotificationResponse;
-import com.example.notification_service.service.NotificationService;
+import com.example.notification_service.service.notification.NotificationService;
 import com.example.notification_service.service.SseNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

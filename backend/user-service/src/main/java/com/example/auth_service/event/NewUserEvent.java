@@ -1,6 +1,5 @@
 package com.example.auth_service.event;
 
-import com.example.user_service.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +15,6 @@ public class NewUserEvent {
     private String name;
     private String username;
     private String email;
-    private UserStatus status;
+    private String status;
     private LocalDateTime registeredAt;
 }

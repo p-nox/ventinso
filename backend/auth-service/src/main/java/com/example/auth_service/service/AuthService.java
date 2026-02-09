@@ -12,6 +12,8 @@ public interface AuthService {
 
     JwtResponse login(LoginRequest loginDto);
 
+    void logout(Long userId, String token);
+
     String register(RegisterRequest registerDto);
 
     boolean areParticipantsValid(Long sellerId, String sellerUsername, Long buyerId, String buyerUsername);

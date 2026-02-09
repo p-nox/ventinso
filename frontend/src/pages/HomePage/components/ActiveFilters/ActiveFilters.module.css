@@ -58,7 +58,7 @@
 
 .clearSpan {
   margin-right: auto;
-  color: var(--text-label-color);
+  color: var(--text-color);
   border-radius: 20px;
   padding: 0;
   cursor: pointer;
